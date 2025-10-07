@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.jdbc.Jdbc;
 
 public class UpdateMechanic {
@@ -15,7 +16,18 @@ public class UpdateMechanic {
 
 	private MechanicDto m;
 	
+	/**
+	 * Name and surname cannot be null nor blank
+	 * @param arg
+	 */
 	public UpdateMechanic(MechanicDto arg) {
+		ArgumentChecks.isNotNull(arg);
+		ArgumentChecks.isNotBlank(arg.id);
+		ArgumentChecks.isNotNull(arg.id);
+		ArgumentChecks.isNotBlank(arg.name);
+		ArgumentChecks.isNotNull(arg.name);
+		ArgumentChecks.isNotBlank(arg.surname);
+		ArgumentChecks.isNotNull(arg.surname);
 		m = arg;
 	}
 

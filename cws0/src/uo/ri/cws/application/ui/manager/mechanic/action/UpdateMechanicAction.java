@@ -20,6 +20,7 @@ public class UpdateMechanicAction implements Action {
 		String id = Console.readString("Type mechahic id to update");
 
 		// check mechanic exists
+		// ¿Esto no se debería ahcer en la capa de servicio?
 		Optional<MechanicDto> optional = service.findById(id);
 		if(optional.isEmpty()) {
 			Console.print("There is no mechanic with that id");

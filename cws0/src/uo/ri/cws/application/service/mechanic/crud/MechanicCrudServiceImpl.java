@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import uo.ri.cws.application.service.mechanic.MechanicCrudService;
 import uo.ri.cws.application.service.mechanic.crud.commands.AddMechanic;
+import uo.ri.cws.application.service.mechanic.crud.commands.DeleteMechanic;
+import uo.ri.cws.application.service.mechanic.crud.commands.ListAllMechanics;
 import uo.ri.cws.application.service.mechanic.crud.commands.ListMechanicById;
 import uo.ri.cws.application.service.mechanic.crud.commands.ListMechanicByNif;
 import uo.ri.cws.application.service.mechanic.crud.commands.UpdateMechanic;
@@ -19,7 +21,7 @@ public class MechanicCrudServiceImpl implements MechanicCrudService{
 
 	@Override
 	public void delete(String mechanicId) throws BusinessException {
-		// TODO Auto-generated method stub
+		new DeleteMechanic(mechanicId).execute();
 		
 	}
 
@@ -41,8 +43,7 @@ public class MechanicCrudServiceImpl implements MechanicCrudService{
 
 	@Override
 	public List<MechanicDto> findAll() throws BusinessException {
-		// TODO Auto-generated method stub
-		return null;
+		return new ListAllMechanics().execute();
 	}
 
 }

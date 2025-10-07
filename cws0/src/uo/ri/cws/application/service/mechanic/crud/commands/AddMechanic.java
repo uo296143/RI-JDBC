@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 import uo.ri.util.jdbc.Jdbc;
+import uo.ri.util.assertion.*;
 
 public class AddMechanic {
 	
@@ -22,16 +23,23 @@ public class AddMechanic {
 	private MechanicDto m;
 	
 	/**
-	 * Solo 1 parametro : un DTO, o un String...
+	 * 
 	 */
 	public AddMechanic(MechanicDto arg) {
+		ArgumentChecks.isNotNull(arg);
+		ArgumentChecks.isNotBlank(arg.nif);
+		ArgumentChecks.isNotNull(arg.nif);
+		ArgumentChecks.isNotBlank(arg.name);
+		ArgumentChecks.isNotNull(arg.name);
+		ArgumentChecks.isNotBlank(arg.surname);
+		ArgumentChecks.isNotNull(arg.surname);
 		m = arg;
 		m.id = UUID.randomUUID().toString();
         m.version = 1;
 	}
 	
 	public MechanicDto execute() {
-		 // Process
+		 
         try (Connection c = Jdbc.createThreadConnection();) {
             try (PreparedStatement pst = c.prepareStatement(TMECHANICS_ADD)) {
                 pst.setString(1, m.id);

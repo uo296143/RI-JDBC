@@ -14,7 +14,6 @@ public class ListMechanicAction implements Action {
     @Override
     public void execute() throws BusinessException {
 
-        // Get info
         String nif = Console.readString("nif"); 
         MechanicCrudService service = Factories.service.forMechanicCrudService();
         Optional<MechanicDto> result = service.findByNif(nif);
@@ -30,8 +29,5 @@ public class ListMechanicAction implements Action {
             		m.nif,
             		m.version);
         }
-       
-
-       
     }
 }

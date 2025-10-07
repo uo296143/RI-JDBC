@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.jdbc.Jdbc;
 
 public class ListMechanicById {
@@ -18,6 +19,7 @@ public class ListMechanicById {
 	 private String id;
 	 
 	 public ListMechanicById(String id) {
+		 ArgumentChecks.isNotNull(id);
 		 this.id = id;
 	 }
 	 
@@ -31,9 +33,9 @@ public class ListMechanicById {
 	                    if (rs.next()) {
 	                        MechanicDto m = new MechanicDto();
 	                        m.id = rs.getString(1);
-	                        m.nif = rs.getString(2);
-	                        m.name = rs.getString(3);
-	                        m.surname = rs.getString(4);
+	                        m.name = rs.getString(2);
+	                        m.surname = rs.getString(3);
+	                        m.nif = rs.getString(4);
 	                        m.version = rs.getLong(5);
 	                        result = Optional.of(m);
 	                    }

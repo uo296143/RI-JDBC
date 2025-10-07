@@ -8,8 +8,8 @@ import io.cucumber.junit.platform.engine.Constants;
 
 @Suite
 @SelectClasspathResource("uo/ri/cws/application/service/mechanic")
-//@SelectClasspathResource("uo/ri/cws/application/service/invoice")
-//@SelectClasspathResource("uo/ri/cws/application/service/workorder")
+@SelectClasspathResource("uo/ri/cws/application/service/invoice")
+@SelectClasspathResource("uo/ri/cws/application/service/workorder")
 
 @ConfigurationParameter(
 	key = Constants.PLUGIN_PROPERTY_NAME, 
