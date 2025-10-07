@@ -18,7 +18,7 @@ public class FindNotInvoicedWorkOrdersByClientNif {
             "select a.id, a.description, a.date, a.state, a.amount"
             + " from TWorkOrders as a, TVehicles as v, TClients as c"
             + " where a.vehicle_id = v.id" + " and v.client_id = c.id"
-            + "state like 'FINISHED' and nif like ?";
+            + " and state like 'FINISHED' and nif like ?";
 	private String nif;
 	
 	

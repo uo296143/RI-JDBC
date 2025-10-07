@@ -18,13 +18,13 @@ public class InvoicingServiceImpl implements InvoicingService{
 
 	@Override
 	public List<InvoicingWorkOrderDto> findWorkOrdersByClientNif(String nif) throws BusinessException {
-		return new FindNotInvoicedWorkOrdersByClientNif(nif).execute();
+		return null;
 	}
 
 	@Override
 	public List<InvoicingWorkOrderDto> findNotInvoicedWorkOrdersByClientNif(String nif) throws BusinessException {
-		// TODO Auto-generated method stub
-		return null;
+		return new FindNotInvoicedWorkOrdersByClientNif(nif).execute();
+
 	}
 
 	@Override

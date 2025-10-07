@@ -6,9 +6,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import uo.ri.conf.Factories;
+import uo.ri.cws.application.service.mechanic.MechanicCrudService;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 import uo.ri.util.jdbc.Jdbc;
 import uo.ri.util.assertion.*;
+import uo.ri.util.exception.BusinessChecks;
+import uo.ri.util.exception.BusinessException;
 
 public class AddMechanic {
 	
@@ -38,8 +42,13 @@ public class AddMechanic {
         m.version = 1;
 	}
 	
-	public MechanicDto execute() {
-		 
+	public MechanicDto execute() throws BusinessException {
+		
+	    MechanicCrudService service = Factories.service.forMechanicCrudService();
+		
+		BusinessChecks.doesNotExist(service.findByNif(m.nif));
+
+				 
         try (Connection c = Jdbc.createThreadConnection();) {
             try (PreparedStatement pst = c.prepareStatement(TMECHANICS_ADD)) {
                 pst.setString(1, m.id);

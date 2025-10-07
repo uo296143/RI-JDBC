@@ -25,7 +25,7 @@ public class FindNotInvoicedWorkOrdersByClientAction implements Action {
 	public void execute() throws BusinessException {
 		 String nif = Console.readString("Client nif ");
 		 InvoicingService service = Factories.service.forCreateInvoiceService();
-		 List<InvoicingWorkOrderDto> invoicingWO = service.findWorkOrdersByClientNif(nif);
+		 List<InvoicingWorkOrderDto> invoicingWO = service.findNotInvoicedWorkOrdersByClientNif(nif);
 	     Console.println("\nClient's not invoiced work orders\n");
 		 for(InvoicingWorkOrderDto i : invoicingWO) {
 			 Console.printf(

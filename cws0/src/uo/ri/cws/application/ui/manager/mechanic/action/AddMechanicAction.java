@@ -19,13 +19,9 @@ public class AddMechanicAction implements Action {
     	MechanicDto m = new MechanicDto();
         m.nif = Console.readString("nif");
         m.name = Console.readString("Name");
-        m.surname = Console.readString("Surname");
-        
+        m.surname = Console.readString("Surname");	
 		BusinessChecks.doesNotExist(service.findByNif(m.nif));
-		
         service.create(m);
-        
-        // Print result
         Console.println("Mechanic added");
     }
 
