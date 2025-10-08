@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import uo.ri.cws.application.persistence.util.executor.Jdbc;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
-import uo.ri.util.jdbc.Jdbc;
 import uo.ri.util.math.Rounds;
 
 public class CreateInvoice {

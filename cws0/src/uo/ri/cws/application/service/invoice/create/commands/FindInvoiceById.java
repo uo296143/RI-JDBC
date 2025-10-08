@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import uo.ri.cws.application.persistence.util.executor.Jdbc;
 import uo.ri.cws.application.service.invoice.InvoicingService.InvoiceDto;
-import uo.ri.util.jdbc.Jdbc;
 
 public class FindInvoiceById {
 	

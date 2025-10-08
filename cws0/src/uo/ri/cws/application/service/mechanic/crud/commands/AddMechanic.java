@@ -7,9 +7,9 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.util.executor.Jdbc;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
-import uo.ri.util.jdbc.Jdbc;
 import uo.ri.util.assertion.*;
 import uo.ri.util.exception.BusinessChecks;
 import uo.ri.util.exception.BusinessException;

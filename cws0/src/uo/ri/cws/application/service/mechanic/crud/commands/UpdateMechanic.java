@@ -4,13 +4,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Optional;
 
+import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord;
+import uo.ri.cws.application.persistence.util.command.Command;
+import uo.ri.cws.application.persistence.util.executor.Jdbc;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.cws.application.service.mechanic.crud.MechanicAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
-import uo.ri.util.jdbc.Jdbc;
+import uo.ri.util.exception.BusinessChecks;
+import uo.ri.util.exception.BusinessException;
 
-public class UpdateMechanic {
+public class UpdateMechanic implements Command<Void>{
 
+	private MechanicGateway m = Factories.persistence.forMechanic();
+	
 	private static final String TMECHANICS_UPDATE = "update TMechanics set name = ?, surname = ?, "
 			+ "version = version + 1, updatedat = ?" + "where id = ?";
 
@@ -31,21 +40,16 @@ public class UpdateMechanic {
 		m = arg;
 	}
 
-	public Void execute() {
-		// Process
-		try (Connection c = Jdbc.createThreadConnection()) {
-			try (PreparedStatement pst = c.prepareStatement(TMECHANICS_UPDATE)) {
-				pst.setString(1, m.name);
-				pst.setString(2, m.surname);
-				pst.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-				pst.setString(4, m.id);
-
-				pst.executeUpdate();
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-		return null;
+	public Void execute() throws BusinessException {
+		MechanicRecord readFromDatabase = checkMechanicExists(m.id); // Se hace la comprobacion en 2 sitios.
+		BusinessChecks.hasVersion(m.version, readFromDatabase.version, "Staled data");
+		Factories.persistence.forMechanic().update(readFromDatabase); // REfacyoica atirui
+	}
+	
+	private MechanicRecord checkMechanicExists(String id) throws BusinessException{
+		Optional<MechanicRecord> optional = Factories.persistence.forMechanic().findById(id);
+		BusinessChecks.isTrue(optional.isPresent(), "Mechanic does not exist");
+		return optional.get();
 	}
 
 }
