@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.Optional;
 
 import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.mechanic.MechanicGateway;
 import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.persistence.util.executor.Jdbc;
@@ -23,7 +24,6 @@ public class UpdateMechanic implements Command<Void>{
 	private static final String TMECHANICS_UPDATE = "update TMechanics set name = ?, surname = ?, "
 			+ "version = version + 1, updatedat = ?" + "where id = ?";
 
-	private MechanicDto m;
 	
 	/**
 	 * Name and surname cannot be null nor blank

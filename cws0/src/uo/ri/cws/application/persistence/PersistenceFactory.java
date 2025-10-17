@@ -1,6 +1,5 @@
 package uo.ri.cws.application.persistence;
 
-import uo.ri.cws.application.persistence.contract.ContractGateway;
 import uo.ri.cws.application.persistence.contract.impl.ContractGatewayImpl;
 import uo.ri.cws.application.persistence.contracttype.ContractTypeGateway;
 import uo.ri.cws.application.persistence.contracttype.impl.ContractTypeGatewayImpl;
