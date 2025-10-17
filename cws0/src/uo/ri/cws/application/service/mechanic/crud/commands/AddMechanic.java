@@ -37,7 +37,7 @@ public class AddMechanic {
 		ArgumentChecks.isNotNull(arg.name);
 		ArgumentChecks.isNotBlank(arg.surname);
 		ArgumentChecks.isNotNull(arg.surname);
-		m = arg;
+		m = arg; 
 		m.id = UUID.randomUUID().toString();
         m.version = 1;
 	}
@@ -45,10 +45,8 @@ public class AddMechanic {
 	public MechanicDto execute() throws BusinessException {
 		
 	    MechanicCrudService service = Factories.service.forMechanicCrudService();
-		
 		BusinessChecks.doesNotExist(service.findByNif(m.nif));
-
-				 
+	 
         try (Connection c = Jdbc.createThreadConnection();) {
             try (PreparedStatement pst = c.prepareStatement(TMECHANICS_ADD)) {
                 pst.setString(1, m.id);
