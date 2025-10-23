@@ -1,8 +1,8 @@
 package uo.ri.cws.application.ui.manager.contracts.contract.action;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+import uo.ri.conf.Factories;
+import uo.ri.cws.application.service.contract.ContractCrudService;
+import uo.ri.cws.application.service.contract.ContractCrudService.ContractDto;
 import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessException;
 import uo.ri.util.menu.Action;
@@ -16,21 +16,21 @@ public class AddContractAction implements Action {
     @Override
     public void execute() throws BusinessException {
 
-        String nif = Console.readString("Mechanic NIF");
-        String contractTypeName = askForType();
-        String professionalGroupName = askForPorfessionalGroup();
-        double annualBaseSalary = Console.readDouble("Annual base salary");
-        LocalDate endDate;
-        if ("FIXED_TERM".equals(contractTypeName)) {
-            endDate = Console.readDate("Type end date");
+        ContractDto c = new ContractDto();
+        c.mechanic.nif = Console.readString("Mechanic NIF");
+        c.contractType.name = askForType();
+        c.professionalGroup.name = askForPorfessionalGroup();
+        c.annualBaseSalary = Console.readDouble("Annual base salary");
+
+        if ("FIXED_TERM".equals(c.contractType.name)) {
+            c.endDate = Console.readDate("Type end date");
         }
 
-        /*
-         * Add the contract
-         */
-        throw new UnsupportedOperationException("Not yet implemented");
+        ContractCrudService service = Factories.service
+            .forContractCrudService();
+        service.create(c);
 
-//		Console.println("Contract registered");
+        Console.println("Contract registered");
     }
 
     private String askForPorfessionalGroup() {

@@ -5,86 +5,126 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.PersistenceException;
 import uo.ri.cws.application.persistence.mechanic.MechanicGateway;
 import uo.ri.cws.application.persistence.util.executor.Jdbc;
-import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 import uo.ri.util.jdbc.Queries;
 
 public class MechanicGatewayImpl implements MechanicGateway {
 
-	@Override
-	public Optional<MechanicRecord> findByNif(String nif) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
+    @Override
+    public Optional<MechanicRecord> findByNif(String nif) {
+        Optional<MechanicRecord> result = Optional.empty();
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_FINDBYNIF"))) {
+            pst.setString(1, nif);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    result = MechanicAssembler.toRecord(rs);
+                }
+            }
 
-	@Override
-	public void add(MechanicRecord t) throws PersistenceException {
-		// TODO Auto-generated method stub
-		
-	}
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+        return result;
+    }
 
-	@Override
-	public void remove(String id) throws PersistenceException {
-	  try (Connection c = Jdbc.createThreadConnection();) {
-	        try (PreparedStatement pst = c
-	                .prepareStatement(Queries.getSQLSentence("TMECHANICS_DELETE"))) {
-	            pst.setString(1, id);
-	            pst.executeUpdate();
-	        }
-	
-	    } catch (SQLException e) {
-	        throw new RuntimeException(e);
-	    }
-	}
+    @Override
+    public void add(MechanicRecord t) {
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_ADD"))) {
+            pst.setString(1, t.id);
+            pst.setString(2, t.nif);
+            pst.setString(3, t.name);
+            pst.setString(4, t.surname);
+            pst.setLong(5, t.version);
+            pst.setTimestamp(6, new Timestamp(System.currentTimeMillis())); // createdAt
+            pst.setTimestamp(7, new Timestamp(System.currentTimeMillis())); // updatedAt
+            pst.setString(8, "ENABLED");
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
 
-	@Override
-	public void update(MechanicRecord t) throws PersistenceException {
-		try  {
-			Connection c = Jdbc.getCurrentConnection();
-			try (PreparedStatement pst = c.prepareStatement(Queries.getSQLSentence("TMECHANICS_UPDATE"))) {
-				pst.setString(1, t.name);
-				pst.setString(2, t.surname);
-				pst.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-				pst.setString(4, t.id);
+    @Override
+    public void remove(String id) {
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_DELETE"))) {
+            pst.setString(1, id);
+            pst.executeUpdate();
+        }
 
-				pst.executeUpdate();
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
 
-	@Override
-	public Optional<MechanicRecord> findById(String id)
-			throws PersistenceException {
-		 Optional<MechanicDto> result = Optional.empty();
-		 MechanicDto m = new MechanicDto();
-		 try (Connection c = Jdbc.createThreadConnection()) {
-	            try (PreparedStatement pst = c
-	                    .prepareStatement(Queries.getSQLSentence("TMECHANICS_FINDBYID"))) {
-	                pst.setString(1, id);
-	                try (ResultSet rs = pst.executeQuery()) {
-	                    if (rs.next()) {
-	                       
-	                        result = Optional.of(m);
-	                    }
-	                }
-	            }
-	        } catch (SQLException e) {
-	            throw new PersistenceException(e);
-	        }
-		 return result.emptyOf(m);
-	}
+    @Override
+    public void update(MechanicRecord t) {
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_UPDATE"))) {
+            pst.setString(1, t.name);
+            pst.setString(2, t.surname);
+            pst.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            pst.setString(4, t.id);
+            pst.executeUpdate();
 
-	@Override
-	public List<MechanicRecord> findAll() throws PersistenceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public Optional<MechanicRecord> findById(String id) {
+
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_FINDBYID"))) {
+            pst.setString(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                return MechanicAssembler.toRecord(rs);
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public List<MechanicRecord> findAll() throws PersistenceException {
+
+        List<MechanicRecord> listOfAllMechanics = new ArrayList<MechanicRecord>();
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TMECHANICS_FINDALL"))) {
+
+            try (ResultSet rs = pst.executeQuery();) {
+                while (rs.next()) {
+                    MechanicRecord m = new MechanicRecord();
+                    m.id = rs.getString(1);
+                    m.name = rs.getString(2);
+                    m.surname = rs.getString(3);
+                    m.nif = rs.getString(4);
+                    m.version = rs.getLong(5);
+                    listOfAllMechanics.add(m);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+
+        return listOfAllMechanics;
+    }
 
 }

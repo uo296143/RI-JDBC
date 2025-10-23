@@ -31,7 +31,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.11</version>
 		</dependency>
-<!--		<dependency>
+		<!--		<dependency>
 			<groupId>uo.ri</groupId>
 			<artifactId>jdbc_cws_service_interfaces</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

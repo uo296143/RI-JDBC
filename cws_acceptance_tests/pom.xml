@@ -1,87 +1,105 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>uo.ri</groupId>
-		<artifactId>jdbc_cws_2025</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>uo.ri</groupId>
+    <artifactId>jdbc_cws_2025</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
 
-	<artifactId>cws_acceptance_tests</artifactId>
-	<name>cws_acceptance_tests</name>
+  <artifactId>cws_acceptance_tests</artifactId>
+  <name>cws_acceptance_tests</name>
 
-	<build>
-		<testResources>
-			<testResource>
-				<directory>test</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
-		</testResources>
-	</build>
+  <!-- Si realmente guardas los .feature en la carpeta "test", esto los mete al classpath de test -->
+  <build>
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
 
-	<dependencies>
-		
-		<dependency>
-			<groupId>uo.ri</groupId>
-<!--			
-			<artifactId>cws_services_jpa</artifactId>
-			<artifactId>cws_services_jdbc</artifactId>
--->
-			<artifactId>cws1_SL_TDG_SF_TS_Comm</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+    <plugins>
+      <!-- IMPORTANTÍSIMO: Surefire 3.x para JUnit Platform -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+          <!-- Incluye tu clase suite si su nombre no encaja con los patrones por defecto -->
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/RunCucumber*.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-java</artifactId>
-			<version>7.18.1</version>
-			<scope>test</scope>
-		</dependency>
+  <properties>
+    <junit.version>5.11.0</junit.version>
+    <cucumber.version>7.18.1</cucumber.version>
+  </properties>
 
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-junit-platform-engine</artifactId>
-			<version>7.18.1</version>
-			<scope>test</scope>
-		</dependency>
+  <dependencies>
+    <!-- Tu dependencia interna -->
+    <dependency>
+      <groupId>uo.ri</groupId>
+      <artifactId>cws0</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-suite</artifactId>
-			<version>1.11.0</version>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.9.1</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- Cucumber + JUnit Platform -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-junit-platform-engine</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-picocontainer</artifactId>
+      <version>${cucumber.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-picocontainer</artifactId>
-			<version>7.18.1</version>
-			<scope>test</scope>
-		</dependency>
+    <!-- JUnit 5 (alineado con Platform 1.11.x) -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Anotaciones de la suite (Suite/IncludeEngines/SelectClasspathResource/...) -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
+      <version>1.11.0</version>
+      <scope>test</scope>
+    </dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.11</version>
-		</dependency>
-
-		<dependency>
-			<groupId>c3p0</groupId>
-			<artifactId>c3p0</artifactId>
-			<version>0.9.1.2</version>
-		</dependency>
-
-	</dependencies>
-
+    <!-- Utilidades varias -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.11</version>
+    </dependency>
+    <dependency>
+      <groupId>c3p0</groupId>
+      <artifactId>c3p0</artifactId>
+      <version>0.9.1.2</version>
+    </dependency>
+  </dependencies>
 </project>

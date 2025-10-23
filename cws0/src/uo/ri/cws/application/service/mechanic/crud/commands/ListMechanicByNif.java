@@ -1,49 +1,27 @@
 package uo.ri.cws.application.service.mechanic.crud.commands;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Optional;
 
-import uo.ri.cws.application.persistence.util.executor.Jdbc;
+import uo.ri.conf.Factories;
+import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord;
+import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
+import uo.ri.cws.application.service.mechanic.crud.MechanicAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 
-public class ListMechanicByNif {
+public class ListMechanicByNif implements Command<Optional<MechanicDto>> {
 
-	 private static final String TMECHANICS_FINDBYNIF = 
-	            "SELECT ID, NAME, SURNAME, nif, VERSION FROM TMECHANICS "
-	                    + "WHERE NIF = ?";
-	 
-	 private String nif;
-	 
-	 public ListMechanicByNif(String nif) {
-		 ArgumentChecks.isNotNull(nif);
-		 this.nif = nif;
-	 }
-	 
-	 public Optional<MechanicDto> execute() {
-		 Optional<MechanicDto> result = Optional.empty();
-		 try (Connection c = Jdbc.createThreadConnection()) {
-	            try (PreparedStatement pst = c
-	                    .prepareStatement(TMECHANICS_FINDBYNIF)) {
-	                pst.setString(1, nif);
-	                try (ResultSet rs = pst.executeQuery()) {
-	                    if (rs.next()) {
-	                        MechanicDto m = new MechanicDto();
-	                        m.id = rs.getString(1);
-	                        m.name = rs.getString(2);
-	                        m.surname = rs.getString(3);
-	                        m.nif = rs.getString(4);
-	                        m.version = rs.getLong(5);
-	                        result = Optional.of(m);
-	                    }
-	                }
-	            }
-	        } catch (SQLException e) {
-	            throw new RuntimeException(e);
-	        }
-		 return result;
-	 }
+    private String nif;
+
+    public ListMechanicByNif(String nif) {
+        ArgumentChecks.isNotNull(nif);
+        this.nif = nif;
+    }
+
+    @Override
+    public Optional<MechanicDto> execute() {
+        Optional<MechanicRecord> dto = Factories.persistence.forMechanic()
+            .findByNif(nif);
+        return Optional.of(MechanicAssembler.toDto(dto.get()));
+    }
 }

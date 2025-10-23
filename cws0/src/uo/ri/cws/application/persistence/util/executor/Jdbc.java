@@ -19,7 +19,6 @@ public class Jdbc {
             .getProperty("DB_PASS");
 
     public static Connection createThreadConnection() throws SQLException {
-
         Connection con = DriverManager.getConnection(URL, USER, PASS);
         threadConnection.set(con);
         return con;

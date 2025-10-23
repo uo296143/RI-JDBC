@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord;
-import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 
 public class MechanicAssembler {
 	

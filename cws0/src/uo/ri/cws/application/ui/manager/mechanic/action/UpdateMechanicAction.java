@@ -11,34 +11,32 @@ import uo.ri.util.menu.Action;
 
 public class UpdateMechanicAction implements Action {
 
-	private MechanicCrudService service = Factories.service.forMechanicCrudService();
+    private MechanicCrudService service = Factories.service
+        .forMechanicCrudService();
 
-	@Override
-	public void execute() throws BusinessException {
+    @Override
+    public void execute() throws BusinessException {
 
-		// Get info
-		String id = Console.readString("Type mechahic id to update");
+        // Get info
+        String id = Console.readString("Type mechahic id to update");
+        // check mechanic exists ¿Esto no se debería hacer en la capa de
+        // servicio?
+        Optional<MechanicDto> optional = service.findById(id);
+        if (optional.isEmpty()) {
+            Console.print("There is no mechanic with that id");
+            return;
+        }
 
-		// check mechanic exists
-		// ¿Esto no se debería ahcer en la capa de servicio?
-		Optional<MechanicDto> optional = service.findById(id);
-		if(optional.isEmpty()) {
-			Console.print("There is no mechanic with that id");
-			return;
-		}
-		
-		MechanicDto m = optional.get();
-		m.id = id;
-		// Ask for new data
-		// nif is the identity, cannot be changed
-		m.name = Console.readString("Name");
-		m.surname = Console.readString("Surname");
+        // Ask for new data nif is the identity, cannot be changed
+        MechanicDto m = optional.get();
+        m.id = id;
+        m.name = Console.readString("Name");
+        m.surname = Console.readString("Surname");
+        // update
+        service.update(m);
+        // Print result
+        Console.println("Mechanic updated");
 
-		// update
-		service.update(m);
-		// Print result
-		Console.println("Mechanic updated");
-
-	}
+    }
 
 }
