@@ -35,7 +35,7 @@ public class AddMechanic implements Command<MechanicDto> {
         BusinessChecks.doesNotExist(mechanic_gateway.findByNif(m.nif),
                 "El mecánico ya existe");
         mechanic_gateway.add(MechanicAssembler.toRecord(m));
-        return m;
+        return MechanicAssembler.toDto(mechanic_gateway.findById(m.id).get());
     }
 
 }

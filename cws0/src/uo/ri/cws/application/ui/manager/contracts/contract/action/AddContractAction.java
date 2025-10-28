@@ -9,6 +9,10 @@ import uo.ri.util.menu.Action;
 
 public class AddContractAction implements Action {
 
+    // Service for contract operations
+    private final ContractCrudService service = Factories.service
+        .forContractCrudService();
+
     /**
      * Creates a contract. The mechanic's NIF, contract type name, type name,
      * month and base salary are provided via console.
@@ -26,10 +30,7 @@ public class AddContractAction implements Action {
             c.endDate = Console.readDate("Type end date");
         }
 
-        ContractCrudService service = Factories.service
-            .forContractCrudService();
         service.create(c);
-
         Console.println("Contract registered");
     }
 

@@ -23,6 +23,6 @@ public class ListMechanicById implements Command<Optional<MechanicDto>> {
             .forMechanic()
             .findById(id);
 
-        return Optional.of(MechanicAssembler.toDto(optional_record.get()));
+        return optional_record.map(MechanicAssembler::toDto);
     }
 }

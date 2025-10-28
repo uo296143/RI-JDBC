@@ -8,6 +8,7 @@ import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 import uo.ri.cws.application.service.mechanic.crud.MechanicAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
+import uo.ri.util.exception.BusinessException;
 
 public class ListMechanicByNif implements Command<Optional<MechanicDto>> {
 
@@ -19,9 +20,10 @@ public class ListMechanicByNif implements Command<Optional<MechanicDto>> {
     }
 
     @Override
-    public Optional<MechanicDto> execute() {
-        Optional<MechanicRecord> dto = Factories.persistence.forMechanic()
+    public Optional<MechanicDto> execute() throws BusinessException {
+        Optional<MechanicRecord> record = Factories.persistence.forMechanic()
             .findByNif(nif);
-        return Optional.of(MechanicAssembler.toDto(dto.get()));
+        return record.map(MechanicAssembler::toDto);
     }
+    
 }

@@ -1,6 +1,7 @@
 package uo.ri.cws.application.service.mechanic.crud;
 
 import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord;
+import uo.ri.cws.application.service.contract.ContractCrudService.MechanicOfContractDto;
 import uo.ri.cws.application.service.mechanic.MechanicCrudService.MechanicDto;
 
 public class MechanicAssembler {
@@ -19,6 +20,15 @@ public class MechanicAssembler {
         MechanicDto mdto = new MechanicDto();
         mdto.id = mr.id;
         mdto.version = mr.version;
+        mdto.nif = mr.nif;
+        mdto.name = mr.name;
+        mdto.surname = mr.surname;
+        return mdto;
+    }
+
+    public static MechanicOfContractDto toDtoOfContract(MechanicRecord mr) {
+        MechanicOfContractDto mdto = new MechanicOfContractDto();
+        mdto.id = mr.id;
         mdto.nif = mr.nif;
         mdto.name = mr.name;
         mdto.surname = mr.surname;

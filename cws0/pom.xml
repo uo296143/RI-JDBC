@@ -10,8 +10,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>cws0</artifactId>
-	<name>cws0</name>
+	<artifactId>jdbc_cws_UO296143</artifactId>
+	<name>jdbc_cws_UO296143</name>
 
 	<dependencies>
 		<dependency>

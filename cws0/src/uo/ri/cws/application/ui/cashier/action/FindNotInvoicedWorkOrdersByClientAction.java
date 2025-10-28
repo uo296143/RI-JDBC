@@ -11,30 +11,27 @@ import uo.ri.util.menu.Action;
 
 public class FindNotInvoicedWorkOrdersByClientAction implements Action {
 
+    // Service for invoicing
+    private final InvoicingService service = Factories.service
+        .forCreateInvoiceService();
 
     /**
-     * Process: 
-     * - Ask customer nif 
-     * - Display all uncharged workorder (status <> 'INVOICED'). 
-     *   For each workorder, display id, vehicle id, date, status, amount 
-     *   and description
-     * @throws BusinessException 
+     * Process: - Ask customer nif - Display all uncharged workorder (status <>
+     * 'INVOICED'). For each workorder, display id, vehicle id, date, status,
+     * amount and description
+     * 
+     * @throws BusinessException
      */
-	
-	@Override
-	public void execute() throws BusinessException {
-		 String nif = Console.readString("Client nif ");
-		 InvoicingService service = Factories.service.forCreateInvoiceService();
-		 List<InvoicingWorkOrderDto> invoicingWO = service.findNotInvoicedWorkOrdersByClientNif(nif);
-	     Console.println("\nClient's not invoiced work orders\n");
-		 for(InvoicingWorkOrderDto i : invoicingWO) {
-			 Console.printf(
-					 "\t%s \t%-40.40s \t%s \t%-12.12s \t%.2f\n",
-					 i.id,
-					 i.description,
-					 i.date,
-					 i.state,
-					 i.amount);  
-		 }
-	} 
+
+    @Override
+    public void execute() throws BusinessException {
+        String nif = Console.readString("Client nif ");
+        List<InvoicingWorkOrderDto> invoicingWO = service
+            .findNotInvoicedWorkOrdersByClientNif(nif);
+        Console.println("\nClient's not invoiced work orders\n");
+        for (InvoicingWorkOrderDto i : invoicingWO) {
+            Console.printf("\t%s \t%-40.40s \t%s \t%-12.12s \t%.2f\n", i.id,
+                    i.description, i.date, i.state, i.amount);
+        }
+    }
 }

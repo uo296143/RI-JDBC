@@ -17,19 +17,12 @@ public class UpdateMechanic implements Command<Void> {
     private MechanicGateway gateway = Factories.persistence.forMechanic();
     private MechanicRecord mr;
 
-    /**
-     * Id, name and surname cannot be null nor blank
-     * 
-     * @param arg
-     */
     public UpdateMechanic(MechanicDto arg) {
         ArgumentChecks.isNotNull(arg);
         ArgumentChecks.isNotBlank(arg.id);
-        ArgumentChecks.isNotNull(arg.id);
         ArgumentChecks.isNotBlank(arg.name);
-        ArgumentChecks.isNotNull(arg.name);
         ArgumentChecks.isNotBlank(arg.surname);
-        ArgumentChecks.isNotNull(arg.surname);
+        ArgumentChecks.isNotNull(arg.nif);
         mr = MechanicAssembler.toRecord(arg);
     }
 
@@ -37,7 +30,7 @@ public class UpdateMechanic implements Command<Void> {
         MechanicRecord readFromDatabase = checkMechanicExists(mr.id);
         BusinessChecks.hasVersion(mr.version, readFromDatabase.version,
                 "Staled data");
-        gateway.update(readFromDatabase);
+        gateway.update(mr);
         return null;
     }
 

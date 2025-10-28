@@ -74,7 +74,7 @@
 
 		<dependency>
 			<groupId>uo.ri</groupId>
-			<artifactId>cws0</artifactId>
+			<artifactId>jdbc_cws_UO296143</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
