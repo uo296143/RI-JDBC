@@ -18,8 +18,27 @@ public class PayrollGatewayImpl implements PayrollGateway {
 
     @Override
     public void add(PayrollRecord t) throws PersistenceException {
-        // TODO Auto-generated method stub
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(Queries.getSQLSentence("TPAYROLLS_ADD"))) {
+            
+            pst.setString(1, t.id);
+            pst.setLong(2, t.version);
+            pst.setTimestamp(3, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); 
+            pst.setTimestamp(4, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); 
+            pst.setString(5, "ACTIVE"); 
+            pst.setDouble(6, t.baseSalary);
+            pst.setDouble(7, t.extraSalary);
+            pst.setDouble(8, t.productivityEarning);
+            pst.setDouble(9, t.trienniumEarning);
+            pst.setDouble(10, t.taxDeduction);
+            pst.setDouble(11, t.nicDeduction);            
+            pst.setDate(12, java.sql.Date.valueOf(t.date)); 
+            pst.setString(13, t.contractId); 
+            pst.executeUpdate();
 
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
@@ -140,12 +159,13 @@ public class PayrollGatewayImpl implements PayrollGateway {
 	}
 
 	@Override
-	public int deletePayrollsOf(LocalDate finMesAnterior) {
+	public int deletePayrollsOf(LocalDate inicioMesAnterior, LocalDate finMesAnterior) {
 		Connection c = Jdbc.getCurrentConnection();
 		int filasAfectadas;
         try (PreparedStatement pst = c
             .prepareStatement(Queries.getSQLSentence("TPAYROLLS_REMOVE_DATE_OF"))) {
-            pst.setDate(1, Date.valueOf(finMesAnterior));
+            pst.setDate(1, Date.valueOf(inicioMesAnterior));
+            pst.setDate(2, Date.valueOf(finMesAnterior));
             filasAfectadas = pst.executeUpdate();
         }
         
@@ -157,13 +177,14 @@ public class PayrollGatewayImpl implements PayrollGateway {
 	}
 
 	@Override
-	public Void deleteLastPayrollOfMechanicId(String mechanicId, LocalDate finMesAnterior) {
+	public Void deleteLastPayrollOfMechanicId(String mechanicId, LocalDate inicioMesAnterior, LocalDate finMesAnterior) {
 		Connection c = Jdbc.getCurrentConnection();
 		
         try (PreparedStatement pst = c
             .prepareStatement(Queries.getSQLSentence("TPAYROLLS_REMOVE_LAST_OF_MECHANIC"))) {
-            pst.setString(1, mechanicId);
-            pst.setDate(2, Date.valueOf(finMesAnterior));
+        	pst.setString(1, mechanicId);
+        	pst.setDate(2, Date.valueOf(inicioMesAnterior));
+        	pst.setDate(3, Date.valueOf(finMesAnterior));
             pst.executeUpdate();
         }
         
@@ -172,6 +193,40 @@ public class PayrollGatewayImpl implements PayrollGateway {
         }
         
         return null;
+	}
+
+	@Override
+	public List<PayrollRecord> findPayrollsByMechanicId(
+			String mechanicId) {
+		
+		Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_FIND_BY_MECHANIC_ID"))) {
+            pst.setString(1, mechanicId);
+            try (ResultSet rs = pst.executeQuery()) {
+                return PayrollAssembler.toRecordList(rs);
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+	}
+
+	@Override
+	public List<PayrollRecord> findPayrollsByProfessionalGroup(
+			String name) {
+		
+		Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_FIND_BY_PROFESSIONALGROUP_NAME"))) {
+            pst.setString(1, name);
+            try (ResultSet rs = pst.executeQuery()) {
+                return PayrollAssembler.toRecordList(rs);
+            }
+
+        } catch (SQLException e) {
+			throw new PersistenceException(e);
+		}
 	}
 
 }

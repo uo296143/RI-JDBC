@@ -19,7 +19,7 @@ public class PayrollAssembler {
 			m.createAt = rs.getTimestamp("createdAt").toLocalDateTime();
 			m.updateAt = rs.getTimestamp("updatedAt").toLocalDateTime();
 			m.entityState = rs.getString("entityState");
-			m.baseSalary = rs.getDouble("basSalary");
+			m.baseSalary = rs.getDouble("baseSalary");
 			m.version = rs.getLong("version");
 			m.date = rs.getDate("date").toLocalDate();
 			m.extraSalary = rs.getDouble("extraSalary");
@@ -43,7 +43,7 @@ public class PayrollAssembler {
 			m.createAt = rs.getTimestamp("createdAt").toLocalDateTime();
 			m.updateAt = rs.getTimestamp("updatedAt").toLocalDateTime();
 			m.entityState = rs.getString("entityState");
-			m.baseSalary = rs.getDouble("basSalary");
+			m.baseSalary = rs.getDouble("baseSalary");
 			m.version = rs.getLong("version");
 			m.date = rs.getDate("date").toLocalDate();
 			m.extraSalary = rs.getDouble("extraSalary");

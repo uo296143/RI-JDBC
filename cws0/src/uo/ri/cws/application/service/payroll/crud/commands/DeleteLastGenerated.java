@@ -10,16 +10,19 @@ import uo.ri.util.exception.BusinessException;
 
 public class DeleteLastGenerated implements Command<Integer> {
 
-    private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
+	private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
 
-    @Override
-    public Integer execute() throws BusinessException {
-    	
+	@Override
+	public Integer execute() throws BusinessException {
+
+		LocalDate inicioMesAnterior = LocalDate.now().minusMonths(1)
+				.with(TemporalAdjusters.firstDayOfMonth());
+
 		LocalDate finMesAnterior = LocalDate.now().minusMonths(1)
 				.with(TemporalAdjusters.lastDayOfMonth());
 
-    	return payrollGateway.deletePayrollsOf(finMesAnterior);
-    	
-    }
+		return payrollGateway.deletePayrollsOf(inicioMesAnterior, finMesAnterior);
+
+	}
 
 }

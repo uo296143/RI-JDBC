@@ -60,6 +60,10 @@ public class GeneratePayrolls implements Command<List<PayrollDto>> {
 				continue;
 			}
 
+			ProfessionalGroupRecord pg = Factories.persistence
+					.forProfessionalGroup()
+					.findById(contract.professionalGroupId).get();
+
 			double baseSalary = Rounds
 					.toCents(contract.annualBaseSalary / 14.0);
 
@@ -70,10 +74,10 @@ public class GeneratePayrolls implements Command<List<PayrollDto>> {
 			}
 
 			double trienniumEarning = calcularTrienios(contract,
-					finMesAnterior);
+					finMesAnterior, pg);
 
 			double productivityEarning = calcularProductividad(
-					contract.mechanicId, inicioMesAnterior, finMesAnterior);
+					contract.mechanicId, inicioMesAnterior, finMesAnterior, pg);
 
 			double grossSalary = baseSalary + extraSalary + trienniumEarning
 					+ productivityEarning;
@@ -108,24 +112,25 @@ public class GeneratePayrolls implements Command<List<PayrollDto>> {
 	 * mes anterior.
 	 */
 	private double calcularProductividad(String mechanicId, LocalDate start,
-			LocalDate end) {
+			LocalDate end, ProfessionalGroupRecord pg) {
 
 		double totalInterventionsValue = workOrderGateway
 				.findWorkOrdersByMechanicIdInDate(mechanicId,
 						start, end);
-		return Rounds.toCents(totalInterventionsValue * 0.10);
+		return Rounds.toCents(totalInterventionsValue * pg.productivityRate);
 	}
 
 	/**
 	 * Lógica para calcular el plus por trienios.
 	 */
-	private double calcularTrienios(ContractRecord contract, LocalDate finMesAnterior) {
-		
-		int years = java.time.Period.between(contract.startDate, finMesAnterior).getYears();
+	private double calcularTrienios(ContractRecord contract,
+			LocalDate finMesAnterior, ProfessionalGroupRecord pg) {
+
+		int years = java.time.Period.between(contract.startDate, finMesAnterior)
+				.getYears();
 		int trienios = years / 3;
-		
-		ProfessionalGroupRecord pg = Factories.persistence.forProfessionalGroup().findById(contract.professionalGroupId).get();
-		double valorTrienioPorGrupo = pg.trienniumPayment; 
+
+		double valorTrienioPorGrupo = pg.trienniumPayment;
 		return Rounds.toCents(trienios * valorTrienioPorGrupo);
 	}
 }

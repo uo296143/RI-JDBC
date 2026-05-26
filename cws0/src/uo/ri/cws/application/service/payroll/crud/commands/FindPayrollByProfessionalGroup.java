@@ -1,30 +1,36 @@
 package uo.ri.cws.application.service.payroll.crud.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import uo.ri.conf.Factories;
-import uo.ri.cws.application.persistence.contract.ContractGateway;
-import uo.ri.cws.application.persistence.contract.ContractGateway.ContractRecord;
+import uo.ri.cws.application.persistence.payroll.PayrollGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
-import uo.ri.cws.application.service.contract.ContractCrudService.ContractDto;
-import uo.ri.cws.application.service.contract.crud.ContractAssembler;
+import uo.ri.cws.application.service.payroll.PayrollService.PayrollSummaryDto;
+import uo.ri.cws.application.service.payroll.crud.PayrollAssembler;
+import uo.ri.util.assertion.ArgumentChecks;
+import uo.ri.util.exception.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
 
-public class FindPayrollByProfessionalGroup implements Command<List<ContractDto>> {
+public class FindPayrollByProfessionalGroup
+		implements Command<List<PayrollSummaryDto>> {
 
-    private ContractGateway contract_gateway = Factories.persistence
-        .forContract();
+	private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
+	private String name;
 
-    @Override
-    public List<ContractDto> execute() throws BusinessException {
-        List<ContractRecord> lista_record = contract_gateway.findAll();
-        List<ContractDto> lista_inForce = new ArrayList<ContractDto>();
-        for (ContractRecord r : lista_record) {
-            if (r.state.equals("IN_FORCE"))
-                lista_inForce.add(ContractAssembler.toDto(r));
-        }
-        return lista_inForce;
-    }
+	public FindPayrollByProfessionalGroup(String name) {
+		ArgumentChecks.isNotEmpty(name);
+		ArgumentChecks.isNotBlank(name);
+		this.name = name;
+	}
+
+	@Override
+	public List<PayrollSummaryDto> execute() throws BusinessException {
+		BusinessChecks.exists(
+				Factories.persistence.forProfessionalGroup().findByName(name),
+				"No se pueden listar las nóminas del grupo profesional ya que este no existe");
+		
+		return payrollGateway.findPayrollsByProfessionalGroup(name).stream()
+				.map(PayrollAssembler::toSummarizedDto).toList();
+	}
 
 }

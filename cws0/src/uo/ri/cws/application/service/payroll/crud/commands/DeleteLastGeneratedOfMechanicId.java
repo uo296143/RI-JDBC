@@ -7,27 +7,36 @@ import uo.ri.conf.Factories;
 import uo.ri.cws.application.persistence.payroll.PayrollGateway;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.util.assertion.ArgumentChecks;
+import uo.ri.util.exception.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
 
 public class DeleteLastGeneratedOfMechanicId implements Command<Void> {
 
-    private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
-    private String mechanicId;
-    
-    public DeleteLastGeneratedOfMechanicId(String mechanicId) {
-    	ArgumentChecks.isNotBlank(mechanicId);
-    	ArgumentChecks.isNotEmpty(mechanicId);
-    	this.mechanicId = mechanicId;
-    }
+	private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
+	private String mechanicId;
 
-    @Override
-    public Void execute() throws BusinessException {
-    	
-    	LocalDate finMesAnterior = LocalDate.now().minusMonths(1)
+	public DeleteLastGeneratedOfMechanicId(String mechanicId) {
+		ArgumentChecks.isNotBlank(mechanicId);
+		ArgumentChecks.isNotEmpty(mechanicId);
+		this.mechanicId = mechanicId;
+	}
+
+	@Override
+	public Void execute() throws BusinessException {
+
+		BusinessChecks.exists(
+				Factories.persistence.forMechanic().findById(mechanicId),
+				"No se puede borrar la nómina del mes pasado del mecánico ya que el mecánico no existe");
+
+		LocalDate inicioMesAnterior = LocalDate.now().minusMonths(1)
+				.with(TemporalAdjusters.firstDayOfMonth());
+
+		LocalDate finMesAnterior = LocalDate.now().minusMonths(1)
 				.with(TemporalAdjusters.lastDayOfMonth());
-    	
-    	return payrollGateway.deleteLastPayrollOfMechanicId(mechanicId, finMesAnterior);
-    	
-    }
+
+		return payrollGateway.deleteLastPayrollOfMechanicId(mechanicId,
+				inicioMesAnterior, finMesAnterior);
+
+	}
 
 }

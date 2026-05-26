@@ -16,7 +16,7 @@ public class FindPayrollById implements Command<Optional<PayrollDto>> {
     
     public FindPayrollById(String id) {
         ArgumentChecks.isNotEmpty(id);
-        ArgumentChecks.isNotEmpty(id);
+        ArgumentChecks.isNotBlank(id);
         this.id = id;
     }
 
