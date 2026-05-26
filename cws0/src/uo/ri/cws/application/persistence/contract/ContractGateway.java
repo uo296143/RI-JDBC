@@ -41,4 +41,6 @@ public interface ContractGateway extends Gateway<ContractRecord> {
 
 	public List<ContractRecord> findContractBetween(LocalDate inicioMesAnterior,
 			LocalDate finMesAnterior);
+
+	public boolean existsContractsForProfessionalGroup(String name);
 }

@@ -16,40 +16,43 @@ import uo.ri.util.jdbc.Queries;
 
 public class PayrollGatewayImpl implements PayrollGateway {
 
-    @Override
-    public void add(PayrollRecord t) throws PersistenceException {
-        Connection c = Jdbc.getCurrentConnection();
-        try (PreparedStatement pst = c.prepareStatement(Queries.getSQLSentence("TPAYROLLS_ADD"))) {
-            
-            pst.setString(1, t.id);
-            pst.setLong(2, t.version);
-            pst.setTimestamp(3, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); 
-            pst.setTimestamp(4, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); 
-            pst.setString(5, "ACTIVE"); 
-            pst.setDouble(6, t.baseSalary);
-            pst.setDouble(7, t.extraSalary);
-            pst.setDouble(8, t.productivityEarning);
-            pst.setDouble(9, t.trienniumEarning);
-            pst.setDouble(10, t.taxDeduction);
-            pst.setDouble(11, t.nicDeduction);            
-            pst.setDate(12, java.sql.Date.valueOf(t.date)); 
-            pst.setString(13, t.contractId); 
-            pst.executeUpdate();
+	@Override
+	public void add(PayrollRecord t) throws PersistenceException {
+	    Connection c = Jdbc.getCurrentConnection();
+	    try (PreparedStatement pst = c.prepareStatement(Queries.getSQLSentence("TPAYROLLS_ADD"))) {	       
+	        pst.setString(1, t.id);
+	        pst.setLong(2, t.version);
+	        pst.setTimestamp(3, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now())); 
+	        pst.setTimestamp(4, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+	        pst.setString(5, "ACTIVE"); 	        	        
+	        pst.setDouble(6, t.baseSalary);
+	        pst.setDouble(7, t.extraSalary);
+	        pst.setDouble(8, t.productivityEarning);
+	        pst.setDouble(9, t.trienniumEarning);	        	        
+	        pst.setDouble(10, t.taxDeduction);
+	        pst.setDouble(11, t.nicDeduction);	        	        
+	        pst.setDate(12, java.sql.Date.valueOf(t.date)); 
+	        pst.setString(13, t.contractId);               	        	       
+	        pst.executeUpdate();
+	    } catch (SQLException e) {
+	        throw new PersistenceException(e);
+	    }
+	}
 
+    @Override
+    public void remove(String id) throws PersistenceException {
+    	Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_REMOVE"))) {
+            pst.setString(1, id);
+            pst.executeUpdate();
         } catch (SQLException e) {
             throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void remove(String id) throws PersistenceException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void update(PayrollRecord t) throws PersistenceException {
-        // TODO Auto-generated method stub
 
     }
 

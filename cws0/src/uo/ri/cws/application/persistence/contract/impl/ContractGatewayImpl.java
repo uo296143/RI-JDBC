@@ -261,4 +261,19 @@ public class ContractGatewayImpl implements ContractGateway {
         }
 	}
 
+	@Override
+	public boolean existsContractsForProfessionalGroup(String name) {
+		Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(Queries
+            .getSQLSentence("TCONTRACTS_EXISTS_FOR_PROFESSIONAL_GROUP"))) {
+            pst.setString(1, name);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+	}
+
 }

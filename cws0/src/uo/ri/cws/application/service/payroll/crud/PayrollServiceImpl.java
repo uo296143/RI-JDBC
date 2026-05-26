@@ -5,21 +5,14 @@ import java.util.List;
 import java.util.Optional;
 
 import uo.ri.cws.application.persistence.util.command.CommandExecutor;
-import uo.ri.cws.application.service.contract.ContractCrudService.ContractDto;
-import uo.ri.cws.application.service.contract.ContractCrudService.ContractSummaryDto;
-import uo.ri.cws.application.service.contract.crud.commands.AddContract;
-import uo.ri.cws.application.service.contract.crud.commands.DeleteContract;
-import uo.ri.cws.application.service.contract.crud.commands.ListAllContracts;
-import uo.ri.cws.application.service.contract.crud.commands.ListContractById;
-import uo.ri.cws.application.service.contract.crud.commands.ListContractsByMechanicNif;
-import uo.ri.cws.application.service.contract.crud.commands.ListInForceContracts;
-import uo.ri.cws.application.service.contract.crud.commands.TerminateContract;
-import uo.ri.cws.application.service.contract.crud.commands.UpdateContract;
 import uo.ri.cws.application.service.payroll.PayrollService;
 import uo.ri.cws.application.service.payroll.crud.commands.DeleteLastGenerated;
 import uo.ri.cws.application.service.payroll.crud.commands.DeleteLastGeneratedOfMechanicId;
+import uo.ri.cws.application.service.payroll.crud.commands.FindAllPayrolls;
+import uo.ri.cws.application.service.payroll.crud.commands.FindPayrollById;
+import uo.ri.cws.application.service.payroll.crud.commands.FindPayrollByProfessionalGroup;
+import uo.ri.cws.application.service.payroll.crud.commands.FindPayrollsByMechanicId;
 import uo.ri.cws.application.service.payroll.crud.commands.GeneratePayrolls;
-import uo.ri.cws.application.service.payroll.crud.commands.*;
 import uo.ri.util.exception.BusinessException;
 
 public class PayrollServiceImpl implements PayrollService {
