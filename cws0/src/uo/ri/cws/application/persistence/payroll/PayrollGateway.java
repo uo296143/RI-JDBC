@@ -27,9 +27,16 @@ public interface PayrollGateway extends Gateway<PayrollRecord> {
         public double extraSalary;
         public double nicDeduction;
         public double productivityEarning;
-        public double taxReduction;
+        public double taxDeduction;
         public double trienniumEarning;
-        public String contract_id;
+        public String contractId;
     }
+
+	public boolean existsPayrollForContractInDate(String contractId,
+			LocalDate finMesAnterior);
+
+	public int deletePayrollsOf(LocalDate finMesAnterior);
+
+	public Void deleteLastPayrollOfMechanicId(String mechanicId, LocalDate finMesAnterior);
 
 }

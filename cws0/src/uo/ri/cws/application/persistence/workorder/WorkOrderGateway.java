@@ -47,4 +47,7 @@ public interface WorkOrderGateway extends Gateway<WorkOrderRecord> {
 
     }
 
+	public double findWorkOrdersByMechanicIdInDate(String mechanicId,
+			LocalDate start, LocalDate end);
+
 }

@@ -1,10 +1,12 @@
 package uo.ri.cws.application.persistence.workorder.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -207,5 +209,28 @@ public class WorkOrderGatewayImpl implements WorkOrderGateway {
         }
         return invoicingWOs;
     }
+
+	@Override
+	public double findWorkOrdersByMechanicIdInDate(String mechanicId,
+			LocalDate start, LocalDate end) {
+		 double totalAmount = 0.0;
+	        Connection connection = Jdbc.getCurrentConnection();
+	        try (PreparedStatement pst = connection.prepareStatement(
+	                Queries.getSQLSentence("TWORKORDERS_FIND_AMOUNT_BETWEEN"))) {
+	        	pst.setDate(1, Date.valueOf(start));
+	        	pst.setDate(2, Date.valueOf(end));
+	            pst.setString(3, mechanicId);
+	            try (ResultSet rs = pst.executeQuery()) {
+	                if (rs.next()) {
+	                    return rs.getDouble(1);
+	                }
+	            }
+	        } catch (SQLException e) {
+	            throw new PersistenceException();
+	        }
+	        
+	        return totalAmount;
+
+	}
 
 }

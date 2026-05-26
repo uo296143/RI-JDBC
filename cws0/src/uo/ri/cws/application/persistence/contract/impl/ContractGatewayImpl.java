@@ -244,4 +244,21 @@ public class ContractGatewayImpl implements ContractGateway {
         }
     }
 
+	@Override
+	public List<ContractRecord> findContractBetween(LocalDate inicioMesAnterior,
+			LocalDate finMesAnterior) {
+		Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(Queries
+            .getSQLSentence("TCONTRACTS_FIND_ALL_BETWEEN"))) {
+            pst.setDate(1, Date.valueOf(inicioMesAnterior));
+            pst.setDate(2, Date.valueOf(finMesAnterior));
+            try (ResultSet rs = pst.executeQuery()) {
+                return ContractAssembler.toRecordList(rs);
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+	}
+
 }

@@ -38,4 +38,7 @@ public interface ContractGateway extends Gateway<ContractRecord> {
         public String mechanicId;
         public String professionalGroupId;
     }
+
+	public List<ContractRecord> findContractBetween(LocalDate inicioMesAnterior,
+			LocalDate finMesAnterior);
 }

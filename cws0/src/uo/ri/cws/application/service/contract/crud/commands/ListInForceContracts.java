@@ -13,18 +13,29 @@ import uo.ri.util.exception.BusinessException;
 
 public class ListInForceContracts implements Command<List<ContractDto>> {
 
-    private ContractGateway contract_gateway = Factories.persistence
-        .forContract();
+	private ContractGateway contract_gateway = Factories.persistence
+			.forContract();
 
-    @Override
-    public List<ContractDto> execute() throws BusinessException {
-        List<ContractRecord> lista_record = contract_gateway.findAll();
-        List<ContractDto> lista_inForce = new ArrayList<ContractDto>();
-        for (ContractRecord r : lista_record) {
-            if (r.state.equals("IN_FORCE"))
-                lista_inForce.add(ContractAssembler.toDto(r));
-        }
-        return lista_inForce;
-    }
+	@Override
+	public List<ContractDto> execute() throws BusinessException {
+		List<ContractRecord> lista_record = contract_gateway.findAll();
+		List<ContractDto> listaInForce = new ArrayList<ContractDto>();
+		for (ContractRecord r : lista_record) {
+			if (r.state.equals("IN_FORCE"))
+				listaInForce.add(ContractAssembler.toDto(r));
+		}
+		for (ContractDto contract : listaInForce) {
+			contract.mechanic = ContractAssembler
+					.toMechanicOfContractDto(Factories.persistence.forMechanic()
+							.findById(contract.mechanic.id).get());
+			contract.contractType = ContractAssembler
+					.toContractTypeOfContractDto(Factories.persistence.forContractType()
+							.findById(contract.contractType.id).get());
+			contract.professionalGroup = ContractAssembler
+					.toProfessionalGroupOfContractDto(Factories.persistence.forProfessionalGroup()
+							.findById(contract.professionalGroup.id).get());
+		}
+		return listaInForce;
+	}
 
 }

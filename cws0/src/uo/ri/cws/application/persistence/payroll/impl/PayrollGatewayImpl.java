@@ -1,9 +1,11 @@
 package uo.ri.cws.application.persistence.payroll.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,14 +37,34 @@ public class PayrollGatewayImpl implements PayrollGateway {
     @Override
     public Optional<PayrollRecord> findById(String id)
             throws PersistenceException {
-        // TODO Auto-generated method stub
-        return Optional.empty();
+
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_FIND_BY_ID"))) {
+            pst.setString(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                return PayrollAssembler.toRecord(rs);
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     @Override
     public List<PayrollRecord> findAll() throws PersistenceException {
-        // TODO Auto-generated method stub
-        return null;
+    	
+        Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_FIND_ALL"))) {
+            try (ResultSet rs = pst.executeQuery()) {
+                return PayrollAssembler.toRecordList(rs);
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+
     }
 
     @Override
@@ -99,5 +121,57 @@ public class PayrollGatewayImpl implements PayrollGateway {
             throw new PersistenceException(e);
         }
     }
+
+	@Override
+	public boolean existsPayrollForContractInDate(String contractId,
+			LocalDate finMesAnterior) {
+		Connection c = Jdbc.getCurrentConnection();
+        try (PreparedStatement pst = c.prepareStatement(
+                Queries.getSQLSentence("TPAYROLLS_EXISTS_PAYROLL_FOR_CONTRACT_IN_DATE"))) {
+        	pst.setDate(1, Date.valueOf(finMesAnterior));
+            pst.setString(2, contractId);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+	}
+
+	@Override
+	public int deletePayrollsOf(LocalDate finMesAnterior) {
+		Connection c = Jdbc.getCurrentConnection();
+		int filasAfectadas;
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TPAYROLLS_REMOVE_DATE_OF"))) {
+            pst.setDate(1, Date.valueOf(finMesAnterior));
+            filasAfectadas = pst.executeUpdate();
+        }
+        
+        catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+        
+        return filasAfectadas;
+	}
+
+	@Override
+	public Void deleteLastPayrollOfMechanicId(String mechanicId, LocalDate finMesAnterior) {
+		Connection c = Jdbc.getCurrentConnection();
+		
+        try (PreparedStatement pst = c
+            .prepareStatement(Queries.getSQLSentence("TPAYROLLS_REMOVE_LAST_OF_MECHANIC"))) {
+            pst.setString(1, mechanicId);
+            pst.setDate(2, Date.valueOf(finMesAnterior));
+            pst.executeUpdate();
+        }
+        
+        catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+        
+        return null;
+	}
 
 }
