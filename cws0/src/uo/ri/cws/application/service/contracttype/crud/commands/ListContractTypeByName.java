@@ -23,13 +23,13 @@ public class ListContractTypeByName
 
     @Override
     public Optional<ContractTypeDto> execute() throws BusinessException {
-        Optional<ContractTypeRecord> optional_contract_record = Factories.persistence
+        Optional<ContractTypeRecord> optionalContractRecord = Factories.persistence
             .forContractType()
             .findByName(name);
-        if (optional_contract_record.isEmpty())
+        if (optionalContractRecord.isEmpty())
             return Optional.empty();
         return Optional
-            .of(ContractTypeAssembler.toDto(optional_contract_record.get()));
+            .of(ContractTypeAssembler.toDto(optionalContractRecord.get()));
     }
 
 }

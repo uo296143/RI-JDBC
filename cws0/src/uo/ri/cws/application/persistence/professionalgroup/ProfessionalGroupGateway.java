@@ -9,6 +9,15 @@ import uo.ri.cws.application.persistence.professionalgroup.ProfessionalGroupGate
 public interface ProfessionalGroupGateway
         extends Gateway<ProfessionalGroupRecord> {
 
+	/**
+	 * [findByName]: Busca un grupo profesional por su nombre
+	 *
+	 * @param [name] String - nombre del grupo profesional
+	 * @return Optional<ProfessionalGroupRecord> - lista de Record´s
+	 *
+	 * Ejemplo de uso:
+	 * Optional<ProfessionalGroupRecord> professionalGroup = professionalGroupGateway.findByName("II");
+	 */
     public Optional<ProfessionalGroupRecord> findByName(String name);
 
     public class ProfessionalGroupRecord {

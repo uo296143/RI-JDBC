@@ -18,70 +18,69 @@ import uo.ri.util.exception.BusinessException;
 
 public class TerminateContract implements Command<Void> {
 
-    private ContractTypeGateway persistence_contractType = Factories.persistence
-        .forContractType();
-    private ContractGateway persistence_contract = Factories.persistence
-        .forContract();
-    private PayrollGateway persistence_payroll = Factories.persistence
-        .forPayroll();
+	private ContractTypeGateway persistenceContractType = Factories.persistence
+			.forContractType();
+	private ContractGateway persistenceContract = Factories.persistence
+			.forContract();
+	private PayrollGateway persistencePayroll = Factories.persistence
+			.forPayroll();
 
-    private String id;
+	private String id;
 
-    public TerminateContract(String id) {
-        ArgumentChecks.isNotBlank(id, "El id del contrato is blank");
-        ArgumentChecks.isNotEmpty(id, "El id del contrato es null o empty");
-        this.id = id;
-    }
+	public TerminateContract(String id) {
+		ArgumentChecks.isNotBlank(id, "El id del contrato is blank");
+		ArgumentChecks.isNotEmpty(id, "El id del contrato es null o empty");
+		this.id = id;
+	}
 
-    /*
-     * BusinessException when, - The contract does not exist, or - the contract
-     * is not in force, or
-     */
-    @Override
-    public Void execute() throws BusinessException {
-        Optional<ContractRecord> optional_contract_record = persistence_contract
-            .findById(id);
-        BusinessChecks.exists(optional_contract_record);
-        if (!optional_contract_record.get().state.equals("IN_FORCE"))
-            throw new BusinessException("The contract wasn´t in force.");
+	@Override
+	public Void execute() throws BusinessException {
+		Optional<ContractRecord> optionalContractRecord = persistenceContract
+				.findById(id);
+		BusinessChecks.exists(optionalContractRecord);
 
-        LocalDate ultimoDiaDelMes = LocalDate.now()
-            .with(TemporalAdjusters.lastDayOfMonth());
-        persistence_contract.finishContract(id, ultimoDiaDelMes);
-        if (llevaMasDeUnAnoTrabajando())
-            calcularIndemnizacion();
-        return null;
-    }
+		ContractRecord contract = optionalContractRecord.get();
 
-    private boolean llevaMasDeUnAnoTrabajando() {
+		if (!"IN_FORCE".equals(contract.state)) {
+			throw new BusinessException("The contract wasn´t in force.");
+		}
 
-        Optional<ContractRecord> contract_record = persistence_contract
-            .findById(id);
-        return Period
-            .between(contract_record.get().startDate,
-                    LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()))
-            .getYears() > 1;
-    }
+		LocalDate ultimoDiaDelMes = LocalDate.now()
+				.with(TemporalAdjusters.lastDayOfMonth());
+		contract.endDate = ultimoDiaDelMes;
+		contract.state = "TERMINATED";
+		persistenceContract.update(contract);
 
-    private void calcularIndemnizacion() {
+		if (llevaMasDeUnAnoTrabajando(contract, ultimoDiaDelMes)) {
+			calcularIndemnizacion(contract, ultimoDiaDelMes);
+		}
 
-        Optional<ContractRecord> contract_record = persistence_contract
-            .findById(id);
-        String oldContractId = contract_record.get().id;
-        double total_gross_salary = persistence_payroll
-            .grossSalaryOfTheLastYear(oldContractId);
-        String contractTypeId = contract_record.get().contractTypeId;
-        Optional<ContractTypeRecord> contractTypeOfOldContract = persistence_contractType
-            .findById(contractTypeId);
-        int years_worked = Period
-            .between(contract_record.get().startDate,
-                    LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()))
-            .getYears();
-        double settlement = total_gross_salary / 365
-                * contractTypeOfOldContract.get().compensationDaysPerYear
-                * years_worked;
+		return null;
+	}
 
-        persistence_contract.insertSettlement(settlement, oldContractId);
-    }
+	private boolean llevaMasDeUnAnoTrabajando(ContractRecord contract,
+			LocalDate ultimoDiaDelMes) {
+		return Period.between(contract.startDate, ultimoDiaDelMes)
+				.getYears() > 1;
+	}
 
+	private void calcularIndemnizacion(ContractRecord contract,
+			LocalDate ultimoDiaDelMes) {
+		LocalDate inicioRango = ultimoDiaDelMes.minusMonths(12).withDayOfMonth(1);
+		double totalGrossSalary = persistencePayroll
+				.grossSalaryOfTheLastYear(contract.id, inicioRango, ultimoDiaDelMes);
+
+		Optional<ContractTypeRecord> contractTypeOfOldContract = persistenceContractType
+				.findById(contract.contractTypeId);
+
+		int yearsWorked = Period.between(contract.startDate, ultimoDiaDelMes)
+				.getYears();
+
+		double settlement = (totalGrossSalary / 365.0)
+				* contractTypeOfOldContract.get().compensationDaysPerYear
+				* yearsWorked;
+
+		contract.settlement = settlement;
+		persistenceContract.update(contract);
+	}
 }

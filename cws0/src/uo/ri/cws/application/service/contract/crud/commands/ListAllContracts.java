@@ -14,27 +14,27 @@ import uo.ri.util.exception.BusinessException;
 
 public class ListAllContracts implements Command<List<ContractSummaryDto>> {
 
-    private ContractGateway contract_gateway = Factories.persistence
-        .forContract();
-    private PayrollGateway payroll_gateway = Factories.persistence.forPayroll();
-    private MechanicGateway mechanic_gateway = Factories.persistence
-        .forMechanic();
+	private ContractGateway contractGateway = Factories.persistence
+			.forContract();
+	private PayrollGateway payrollGateway = Factories.persistence.forPayroll();
+	private MechanicGateway mechanicGateway = Factories.persistence
+			.forMechanic();
 
-    @Override
-    public List<ContractSummaryDto> execute() throws BusinessException {
-        List<ContractSummaryDto> lista_contractSummaryDto = new ArrayList<ContractSummaryDto>();
-        List<ContractRecord> lista_contractRecord = contract_gateway.findAll();
-        for (ContractRecord c : lista_contractRecord) {
-            ContractSummaryDto cs = new ContractSummaryDto();
-            cs.id = c.id;
-            cs.nif = mechanic_gateway.findById(c.mechanicId).get().nif;
-            cs.state = c.state;
-            if (cs.state.equals("TERMINATED"))
-                cs.settlement = c.settlement;
-            cs.numPayrolls = payroll_gateway
-                .findNumberOfPayrollsByContractId(c.id);
-            lista_contractSummaryDto.add(cs);
-        }
-        return lista_contractSummaryDto;
-    }
+	@Override
+	public List<ContractSummaryDto> execute() throws BusinessException {
+		List<ContractSummaryDto> lista_contractSummaryDto = new ArrayList<ContractSummaryDto>();
+		List<ContractRecord> lista_contractRecord = contractGateway.findAll();
+		for (ContractRecord c : lista_contractRecord) {
+			ContractSummaryDto cs = new ContractSummaryDto();
+			cs.id = c.id;
+			cs.nif = mechanicGateway.findById(c.mechanicId).get().nif;
+			cs.state = c.state;
+			if (cs.state.equals("TERMINATED"))
+				cs.settlement = c.settlement;
+			cs.numPayrolls = payrollGateway
+					.findNumberOfPayrollsByContractId(c.id);
+			lista_contractSummaryDto.add(cs);
+		}
+		return lista_contractSummaryDto;
+	}
 }

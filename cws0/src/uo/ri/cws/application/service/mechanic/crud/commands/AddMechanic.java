@@ -13,7 +13,7 @@ import uo.ri.util.exception.BusinessException;
 
 public class AddMechanic implements Command<MechanicDto> {
 
-    private MechanicGateway mechanic_gateway = Factories.persistence
+    private MechanicGateway mechanicGateway = Factories.persistence
         .forMechanic();
     private MechanicDto m;
 
@@ -32,10 +32,10 @@ public class AddMechanic implements Command<MechanicDto> {
 
     @Override
     public MechanicDto execute() throws BusinessException {
-        BusinessChecks.doesNotExist(mechanic_gateway.findByNif(m.nif),
+        BusinessChecks.doesNotExist(mechanicGateway.findByNif(m.nif),
                 "El mecánico ya existe");
-        mechanic_gateway.add(MechanicAssembler.toRecord(m));
-        return MechanicAssembler.toDto(mechanic_gateway.findById(m.id).get());
+        mechanicGateway.add(MechanicAssembler.toRecord(m));
+        return MechanicAssembler.toDto(mechanicGateway.findById(m.id).get());
     }
 
 }

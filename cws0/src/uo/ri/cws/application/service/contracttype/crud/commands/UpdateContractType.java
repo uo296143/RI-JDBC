@@ -14,7 +14,7 @@ import uo.ri.util.exception.BusinessException;
 
 public class UpdateContractType implements Command<Void> {
 
-    private ContractTypeGateway contractType_gateway = Factories.persistence
+    private ContractTypeGateway contractTypeGateway = Factories.persistence
         .forContractType();
 
     private ContractTypeRecord record;
@@ -29,12 +29,12 @@ public class UpdateContractType implements Command<Void> {
 
     @Override
     public Void execute() throws BusinessException {
-        Optional<ContractTypeRecord> optional_contractType_record = contractType_gateway
+        Optional<ContractTypeRecord> optional_contractType_record = contractTypeGateway
             .findByName(record.name);
         BusinessChecks.exists(optional_contractType_record);
         BusinessChecks.hasVersion(record.version,
                 optional_contractType_record.get().version, "Staled data");
-        contractType_gateway.update(record);
+        contractTypeGateway.update(record);
         return null;
     }
 

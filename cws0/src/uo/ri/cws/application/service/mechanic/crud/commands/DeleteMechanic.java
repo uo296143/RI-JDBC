@@ -17,13 +17,13 @@ public class DeleteMechanic implements Command<Void> {
 
     private String mechanicId;
 
-    private MechanicGateway mechanic_gateway = Factories.persistence
+    private MechanicGateway mechanicGateway = Factories.persistence
         .forMechanic();
-    private ContractGateway contract_gateway = Factories.persistence
+    private ContractGateway contractGateway = Factories.persistence
         .forContract();
-    private WorkOrderGateway workorder_gateway = Factories.persistence
+    private WorkOrderGateway workorderGateway = Factories.persistence
         .forWorkOrder();
-    private InterventionGateway intervention_gateway = Factories.persistence
+    private InterventionGateway interventionGateway = Factories.persistence
         .forIntervention();
 
     public DeleteMechanic(String mechanicId) {
@@ -33,14 +33,14 @@ public class DeleteMechanic implements Command<Void> {
 
     @Override
     public Void execute() throws BusinessException {
-        BusinessChecks.exists(mechanic_gateway.findById(mechanicId));
-        BusinessChecks.doesNotExist(
-                workorder_gateway.findWorkordersByMechanicId(mechanicId));
+        BusinessChecks.exists(mechanicGateway.findById(mechanicId));
+        BusinessChecks.isFalse(
+                workorderGateway.existsWorkordersByMechanicId(mechanicId));
         BusinessChecks
-            .isFalse(intervention_gateway.findByMechanicId(mechanicId));
-        List<ContractRecord> contract_record = contract_gateway
+            .isFalse(interventionGateway.findByMechanicId(mechanicId));
+        List<ContractRecord> contractRecord = contractGateway
             .findContractsByMechanicId(mechanicId);
-        BusinessChecks.isTrue(contract_record.isEmpty());
+        BusinessChecks.isTrue(contractRecord.isEmpty());
         Factories.persistence.forMechanic().remove(mechanicId);
         return null;
     }

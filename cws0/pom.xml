@@ -36,6 +36,6 @@
 			<artifactId>jdbc_cws_service_interfaces</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		
+
 	</dependencies>
 </project>

@@ -8,6 +8,15 @@ import uo.ri.cws.application.persistence.invoice.InvoiceGateway.InvoiceRecord;
 
 public interface InvoiceGateway extends Gateway<InvoiceRecord> {
 
+	/**
+	 * [findNextNumber]: Genera un número incremental para las facturas en 
+	 * función de cuál es el último número para una factura
+	 *
+	 * @return long - Número de factura
+	 *
+	 * Ejemplo de uso:
+	 * long invoiceNumber = invoiceGateway.findNextNumber();
+	 */
     public long findNextNumber();
 
     public class InvoiceRecord {

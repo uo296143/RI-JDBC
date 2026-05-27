@@ -14,14 +14,14 @@ public class ListAllContractTypes implements Command<List<ContractTypeDto>> {
 
     @Override
     public List<ContractTypeDto> execute() throws BusinessException {
-        List<ContractTypeDto> list_dto = new ArrayList<ContractTypeDto>();
-        List<ContractTypeRecord> list_record = Factories.persistence
+        List<ContractTypeDto> listDto = new ArrayList<ContractTypeDto>();
+        List<ContractTypeRecord> listRecord = Factories.persistence
             .forContractType()
             .findAll();
-        for (ContractTypeRecord r : list_record) {
-            list_dto.add(ContractTypeAssembler.toDto(r));
+        for (ContractTypeRecord r : listRecord) {
+            listDto.add(ContractTypeAssembler.toDto(r));
         }
-        return list_dto;
+        return listDto;
     }
 
 }

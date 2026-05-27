@@ -8,6 +8,15 @@ import uo.ri.cws.application.persistence.contracttype.ContractTypeGateway.Contra
 
 public interface ContractTypeGateway extends Gateway<ContractTypeRecord> {
 
+	/**
+	 * [findByName]: Busca un tipo de contrato por nombre
+	 *
+	 * @param [name] String - Nombre del tipo de contrato	
+	 * @return List<ContractTypeRecord> - Lista de Record´s de ContractType
+	 *
+	 * Ejemplo de uso:
+	 * Optional<ContractTypeRecord> contractType = contractTypeGateway.findByName("SEASONAL");
+	 */
     public Optional<ContractTypeRecord> findByName(String name);
 
     public class ContractTypeRecord {

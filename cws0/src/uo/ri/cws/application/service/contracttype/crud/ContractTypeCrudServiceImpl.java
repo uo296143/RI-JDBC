@@ -13,34 +13,36 @@ import uo.ri.cws.application.service.contracttype.crud.commands.UpdateContractTy
 import uo.ri.util.exception.BusinessException;
 
 public class ContractTypeCrudServiceImpl implements ContractTypeCrudService {
+	
+	CommandExecutor ce = new CommandExecutor();
 
     @Override
     public ContractTypeDto create(ContractTypeDto dto)
             throws BusinessException {
-        return new CommandExecutor().execute(new AddContractType(dto));
+        return ce.execute(new AddContractType(dto));
     }
 
     @Override
     public void delete(String name) throws BusinessException {
-        new CommandExecutor().execute(new DeleteContractType(name));
+        ce.execute(new DeleteContractType(name));
 
     }
 
     @Override
     public void update(ContractTypeDto dto) throws BusinessException {
-        new CommandExecutor().execute(new UpdateContractType(dto));
+        ce.execute(new UpdateContractType(dto));
 
     }
 
     @Override
     public Optional<ContractTypeDto> findByName(String name)
             throws BusinessException {
-        return new CommandExecutor().execute(new ListContractTypeByName(name));
+        return ce.execute(new ListContractTypeByName(name));
     }
 
     @Override
     public List<ContractTypeDto> findAll() throws BusinessException {
-        return new CommandExecutor().execute(new ListAllContractTypes());
+        return ce.execute(new ListAllContractTypes());
     }
 
 }

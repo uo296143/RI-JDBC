@@ -39,14 +39,12 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
     }
 
     @Override
-    public void remove(String id) throws PersistenceException {
-        // TODO Auto-generated method stub
+    public void remove(String id) throws PersistenceException {        
 
     }
 
     @Override
-    public void update(InvoiceRecord t) throws PersistenceException {
-        // TODO Auto-generated method stub
+    public void update(InvoiceRecord t) throws PersistenceException {        
 
     }
 
@@ -68,7 +66,7 @@ public class InvoiceGatewayImpl implements InvoiceGateway {
 
     @Override
     public List<InvoiceRecord> findAll() throws PersistenceException {
-        // TODO Auto-generated method stub
+        
         return null;
     }
 

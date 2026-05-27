@@ -20,7 +20,6 @@ public class ContractAssembler {
             m.createAt = rs.getTimestamp("createdAt").toLocalDateTime();
             m.updateAt = rs.getTimestamp("updatedAt").toLocalDateTime();
             m.entityState = rs.getString("entityState");
-
             m.annualBaseSalary = rs.getDouble("annualBaseSalary");
             m.contractTypeId = rs.getString("contractType_Id");
             m.mechanicId = rs.getString("mechanic_Id");
@@ -48,7 +47,6 @@ public class ContractAssembler {
             m.createAt = rs.getTimestamp("createdAt").toLocalDateTime();
             m.updateAt = rs.getTimestamp("updatedAt").toLocalDateTime();
             m.entityState = rs.getString("entityState");
-
             m.annualBaseSalary = rs.getDouble("annualBaseSalary");
             m.contractTypeId = rs.getString("contractType_Id");
             m.mechanicId = rs.getString("mechanic_Id");

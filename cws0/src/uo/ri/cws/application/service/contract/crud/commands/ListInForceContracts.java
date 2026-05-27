@@ -13,12 +13,12 @@ import uo.ri.util.exception.BusinessException;
 
 public class ListInForceContracts implements Command<List<ContractDto>> {
 
-	private ContractGateway contract_gateway = Factories.persistence
+	private ContractGateway contractGateway = Factories.persistence
 			.forContract();
 
 	@Override
 	public List<ContractDto> execute() throws BusinessException {
-		List<ContractRecord> lista_record = contract_gateway.findAll();
+		List<ContractRecord> lista_record = contractGateway.findAll();
 		List<ContractDto> listaInForce = new ArrayList<ContractDto>();
 		for (ContractRecord r : lista_record) {
 			if (r.state.equals("IN_FORCE"))
@@ -29,10 +29,12 @@ public class ListInForceContracts implements Command<List<ContractDto>> {
 					.toMechanicOfContractDto(Factories.persistence.forMechanic()
 							.findById(contract.mechanic.id).get());
 			contract.contractType = ContractAssembler
-					.toContractTypeOfContractDto(Factories.persistence.forContractType()
-							.findById(contract.contractType.id).get());
+					.toContractTypeOfContractDto(
+							Factories.persistence.forContractType()
+									.findById(contract.contractType.id).get());
 			contract.professionalGroup = ContractAssembler
-					.toProfessionalGroupOfContractDto(Factories.persistence.forProfessionalGroup()
+					.toProfessionalGroupOfContractDto(Factories.persistence
+							.forProfessionalGroup()
 							.findById(contract.professionalGroup.id).get());
 		}
 		return listaInForce;

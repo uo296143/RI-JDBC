@@ -17,9 +17,9 @@ import uo.ri.util.exception.BusinessException;
 public class UpdateContract implements Command<Void> {
 
     private ContractDto contract = new ContractDto();
-    private ContractGateway contract_gateway = Factories.persistence
+    private ContractGateway contractGateway = Factories.persistence
         .forContract();
-    private ContractTypeGateway contractType_gateway = Factories.persistence
+    private ContractTypeGateway contractTypeGateway = Factories.persistence
         .forContractType();
 
     public UpdateContract(ContractDto dto) {
@@ -35,7 +35,7 @@ public class UpdateContract implements Command<Void> {
     @Override
     public Void execute() throws BusinessException {
 
-        Optional<ContractRecord> optional_contract_record = contract_gateway
+        Optional<ContractRecord> optional_contract_record = contractGateway
             .findById(contract.id);
         BusinessChecks.exists(optional_contract_record);
         BusinessChecks.hasVersion(contract.version,
@@ -43,14 +43,14 @@ public class UpdateContract implements Command<Void> {
         if (!optional_contract_record.get().state.equals("IN_FORCE"))
             throw new BusinessException("The contract is no longer in force");
         String contract_type_id = optional_contract_record.get().contractTypeId;
-        Optional<ContractTypeRecord> optional_contractType_record = contractType_gateway
+        Optional<ContractTypeRecord> optional_contractType_record = contractTypeGateway
             .findById(contract_type_id);
         if (optional_contractType_record.get().name.equals("FIXED_TERM")
                 && contract.endDate
                     .isBefore(optional_contract_record.get().startDate))
             throw new BusinessException(
                     "Contract type is FIXED_TERM and end date is earlier than startDate");
-        contract_gateway.update(ContractAssembler.toRecord(contract));
+        contractGateway.update(ContractAssembler.toRecord(contract));
         return null;
     }
 

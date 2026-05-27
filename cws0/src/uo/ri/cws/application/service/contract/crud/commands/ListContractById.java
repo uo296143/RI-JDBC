@@ -11,22 +11,19 @@ import uo.ri.cws.application.persistence.professionalgroup.ProfessionalGroupGate
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.contract.ContractCrudService.ContractDto;
 import uo.ri.cws.application.service.contract.crud.ContractAssembler;
-import uo.ri.cws.application.service.contracttype.crud.ContractTypeAssembler;
-import uo.ri.cws.application.service.mechanic.crud.MechanicAssembler;
-import uo.ri.cws.application.service.professionalgroup.crud.ProfessionalGroupAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
 import uo.ri.util.exception.BusinessException;
 
 public class ListContractById implements Command<Optional<ContractDto>> {
 
     private String id;
-    private ContractGateway contract_gateway = Factories.persistence
+    private ContractGateway contractGateway = Factories.persistence
         .forContract();
-    private MechanicGateway mechanic_gateway = Factories.persistence
+    private MechanicGateway mechanicGateway = Factories.persistence
         .forMechanic();
-    private ProfessionalGroupGateway pgroup_gateway = Factories.persistence
+    private ProfessionalGroupGateway pgroupGateway = Factories.persistence
         .forProfessionalGroup();
-    private ContractTypeGateway contractType_gateway = Factories.persistence
+    private ContractTypeGateway contractTypeGateway = Factories.persistence
         .forContractType();
 
     public ListContractById(String id) {
@@ -36,20 +33,19 @@ public class ListContractById implements Command<Optional<ContractDto>> {
 
     @Override
     public Optional<ContractDto> execute() throws BusinessException {
-        Optional<ContractRecord> optional_contract_record = contract_gateway
+        Optional<ContractRecord> optional_contract_record = contractGateway
             .findById(id);
         if (optional_contract_record.isEmpty())
             return Optional.empty();
         ContractDto c = ContractAssembler.toDto(optional_contract_record.get());
-        // Recupero la informacion completa de mechanic, contractType y
-        // professionalGroup
-        c.contractType = ContractTypeAssembler.toDtoOfContract(
-                contractType_gateway.findById(c.contractType.id).get());
-        c.professionalGroup = ProfessionalGroupAssembler
-            .toDtoOfProfessionalGroup(
-                    pgroup_gateway.findById(c.professionalGroup.id).get());
-        c.mechanic = MechanicAssembler
-            .toDtoOfContract(mechanic_gateway.findById(c.mechanic.id).get());
+        
+        c.contractType = ContractAssembler.toContractTypeOfContractDto(
+                contractTypeGateway.findById(c.contractType.id).get());
+        c.professionalGroup = ContractAssembler
+            .toProfessionalGroupOfContractDto(
+                    pgroupGateway.findById(c.professionalGroup.id).get());
+        c.mechanic = ContractAssembler
+            .toMechanicOfContractDto(mechanicGateway.findById(c.mechanic.id).get());
 
         return Optional.of(c);
     }

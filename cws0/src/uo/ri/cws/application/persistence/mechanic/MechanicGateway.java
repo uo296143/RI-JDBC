@@ -8,6 +8,15 @@ import uo.ri.cws.application.persistence.mechanic.MechanicGateway.MechanicRecord
 
 public interface MechanicGateway extends Gateway<MechanicRecord>{
 	
+	/**
+	 * [findByNif]: Busca un mecánico por nif
+	 *
+	 * @param [nif] String - nif del mecánico
+	 * @return Optional<MechanicRecord> - MechanicRecord si existe
+	 *
+	 * Ejemplo de uso:
+	 * Optional<MechanicRecord> mechanic = mechanicGateway.findByNif(nif);
+	 */
 	public Optional<MechanicRecord> findByNif(String nif);
 	
 	public class MechanicRecord {

@@ -18,242 +18,132 @@ import uo.ri.cws.application.persistence.professionalgroup.ProfessionalGroupGate
 import uo.ri.cws.application.persistence.professionalgroup.ProfessionalGroupGateway.ProfessionalGroupRecord;
 import uo.ri.cws.application.persistence.util.command.Command;
 import uo.ri.cws.application.service.contract.ContractCrudService.ContractDto;
-import uo.ri.cws.application.service.contract.crud.ContractAssembler;
 import uo.ri.util.assertion.ArgumentChecks;
-import uo.ri.util.console.Console;
 import uo.ri.util.exception.BusinessChecks;
 import uo.ri.util.exception.BusinessException;
+import uo.ri.util.math.Rounds;
 
 public class AddContract implements Command<ContractDto> {
 
-    private ContractRecord contract_record;
-    private ContractDto contract_dto;
-    private Optional<MechanicRecord> mechanic_optional;
-    private Optional<ContractTypeRecord> contractType_record;
-    private Optional<ProfessionalGroupRecord> professionalGroup_optional;
+	private final ContractDto contractDto;
+	private final LocalDate referenceDate;
 
-    private ContractTypeGateway persistence_contractType = Factories.persistence
-        .forContractType();
-    private MechanicGateway persistence_mechanic = Factories.persistence
-        .forMechanic();
-    private ProfessionalGroupGateway persistence_professional = Factories.persistence
-        .forProfessionalGroup();
-    private ContractGateway persistence_contract = Factories.persistence
-        .forContract();
-    private PayrollGateway persistence_payroll = Factories.persistence
-        .forPayroll();
+	private final ContractTypeGateway contractTypeGateway = Factories.persistence.forContractType();
+	private final MechanicGateway mechanicGateway = Factories.persistence.forMechanic();
+	private final ProfessionalGroupGateway professionalGateway = Factories.persistence.forProfessionalGroup();
+	private final ContractGateway contractGateway = Factories.persistence.forContract();
+	private final PayrollGateway payrollGateway = Factories.persistence.forPayroll();
 
-    // Para calcular el porcentaje de IRPF según el salario.
-    private static double segments[] = { 12450, 20200, 35200, 60000, 300000 };
-    private static double rates[] = { 0.19, 0.24, 0.30, 0.37, 0.45, 0.47 };
+	private static final double[] SEGMENTS = { 12450, 20200, 35200, 60000, 300000 };
+	private static final double[] RATES = { 0.19, 0.24, 0.30, 0.37, 0.45, 0.47 };
 
-    public AddContract(ContractDto contract) throws BusinessException {
+	public AddContract(ContractDto contract) {
+		this(contract, LocalDate.now());
+	}
 
-        ArgumentChecks.isNotNull(contract);
-        ArgumentChecks.isNotBlank(contract.mechanic.nif);
-        ArgumentChecks.isNotBlank(contract.contractType.name);
-        ArgumentChecks.isNotBlank(contract.professionalGroup.name);
-        ArgumentChecks.isNotNull(contract.annualBaseSalary);
-        ArgumentChecks.isTrue(contract.annualBaseSalary > 0);
-        if (contract.contractType.name.equals("FIXED_TERM")) {
-            ArgumentChecks.isTrue(contract.endDate != null);
-        }
+	public AddContract(ContractDto contract, LocalDate referenceDate) {
+		ArgumentChecks.isNotNull(contract);
+		ArgumentChecks.isNotBlank(contract.mechanic.nif);
+		ArgumentChecks.isNotBlank(contract.contractType.name);
+		ArgumentChecks.isNotBlank(contract.professionalGroup.name);
+		ArgumentChecks.isNotNull(contract.annualBaseSalary);
+		ArgumentChecks.isTrue(contract.annualBaseSalary > 0);
+		if ("FIXED_TERM".equals(contract.contractType.name)) {
+			ArgumentChecks.isNotNull(contract.endDate, "Un contrato temporal debe tener fecha de fin");
+		}
+		this.contractDto = contract;
+		this.referenceDate = referenceDate;
+	}
 
-        this.contract_dto = contract;
-        contract_record = new ContractRecord();
-    }
+	@Override
+	public ContractDto execute() throws BusinessException {
+		
+		Optional<MechanicRecord> mechanicOpt = mechanicGateway.findByNif(contractDto.mechanic.nif);
+		BusinessChecks.exists(mechanicOpt, "The mechanic doesn't exist");
+		MechanicRecord mechanic = mechanicOpt.get();
 
-    /*
-     * 1 - Se comprueba si ya hay un contrato en vigor, si es el caso se
-     * rescinde con fecha de finalización el último día del mes y se calcula la
-     * indemnización.
-     */
-    @Override
-    public ContractDto execute() throws BusinessException {
+		Optional<ContractTypeRecord> typeOpt = contractTypeGateway.findByName(contractDto.contractType.name);
+		BusinessChecks.exists(typeOpt, "The contract type doesn't exist");
 
-        /*
-         * A apartir del nombre / nif se obtiene el grupo profesional, el tipo
-         * de contrato y el mecánico
-         */
-        contractType_record = persistence_contractType
-            .findByName(contract_dto.contractType.name);
-        mechanic_optional = persistence_mechanic
-            .findByNif(contract_dto.mechanic.nif);
-        professionalGroup_optional = persistence_professional
-            .findByName(contract_dto.professionalGroup.name);
+		Optional<ProfessionalGroupRecord> groupOpt = professionalGateway.findByName(contractDto.professionalGroup.name);
+		BusinessChecks.exists(groupOpt, "The professional group doesn't exist");
 
-        BusinessChecks.exists(mechanic_optional, "The mechanic doesn´t exist");
-        BusinessChecks.exists(contractType_record,
-                "The contract type doesn´t exist");
-        BusinessChecks.exists(professionalGroup_optional,
-                "The professional group doesn´t exist");
+		LocalDate baseDate = (contractDto.startDate == null) ? referenceDate : contractDto.startDate;
+		LocalDate startDateNextMonth = baseDate.plusMonths(1).withDayOfMonth(1);
 
-        contract_record.id = UUID.randomUUID().toString();
-        contract_record.version = 1L;
-        contract_record.mechanicId = mechanic_optional.get().id;
-        contract_record.contractTypeId = contractType_record.get().id;
-        contract_record.professionalGroupId = professionalGroup_optional
-            .get().id;
-        contract_record.annualBaseSalary = contract_dto.annualBaseSalary;
+		if (contractDto.endDate != null && contractDto.endDate.isBefore(startDateNextMonth)) {
+			throw new BusinessException("End date can't be earlier than start date");
+		}
+		
+		Optional<ContractRecord> activeContractOpt = contractGateway.findInForceContractByMechanicId(mechanic.id);
+		
+		if (activeContractOpt.isPresent()) {
+			ContractRecord oldContract = activeContractOpt.get();
+			LocalDate endOfCurrentMonth = referenceDate.with(TemporalAdjusters.lastDayOfMonth());
+						
+			oldContract.endDate = endOfCurrentMonth;
+			oldContract.state = "TERMINATED";
+			contractGateway.update(oldContract);
+						
+			long totalDays = java.time.temporal.ChronoUnit.DAYS.between(oldContract.startDate, endOfCurrentMonth);
+			if (totalDays >= 365) {
+				calcularIndemnizacion(oldContract, typeOpt.get(), endOfCurrentMonth);
+			}
+		}
+	
+		ContractRecord newContract = new ContractRecord();
+		newContract.id = UUID.randomUUID().toString();
+		newContract.version = 1L;
+		newContract.mechanicId = mechanic.id;
+		newContract.contractTypeId = typeOpt.get().id;
+		newContract.professionalGroupId = groupOpt.get().id;
+		newContract.annualBaseSalary = contractDto.annualBaseSalary;
+		newContract.startDate = startDateNextMonth;
+		newContract.endDate = contractDto.endDate;
+		newContract.taxRate = forSalary(contractDto.annualBaseSalary);
+		newContract.state = "IN_FORCE";
+		newContract.settlement = 0.0;
 
-        /*
-         * La fecha de inicio del contrato es el 1º día del mes siguiente.
-         * 
-         * Hago esta comprobacion por que por pantalla no se pide fecha de
-         * inicio entonces pongo la actual pero en las pruebas igual se quiere
-         * poner una fecha de inicio posterior.
-         */
-        LocalDate primerDiaMesSiguiente;
-        if (contract_dto.startDate == null) {
-            primerDiaMesSiguiente = LocalDate.now()
-                .plusMonths(1)
-                .withDayOfMonth(1);
-        } else {
-            primerDiaMesSiguiente = contract_dto.startDate.plusMonths(1)
-                .withDayOfMonth(1);
-        }
+		contractGateway.add(newContract);
+		
+		contractDto.id = newContract.id;
+		contractDto.version = newContract.version;
+		contractDto.startDate = newContract.startDate;
+		contractDto.taxRate = newContract.taxRate;
+		contractDto.state = newContract.state;
+		contractDto.settlement = newContract.settlement;
+		contractDto.mechanic.id = mechanic.id;
+		contractDto.contractType.id = typeOpt.get().id;
+		contractDto.professionalGroup.id = groupOpt.get().id;
 
-        contract_record.startDate = primerDiaMesSiguiente;
+		return contractDto;
+	}
 
-        // Los impuestos se calculan en funcion del salario para que pasen los
-        // tests.
-        contract_record.taxRate = forSalary(contract_dto.annualBaseSalary);
-        contract_record.settlement = contract_dto.settlement;
-        contract_record.state = "IN_FORCE";
+	/**
+	 * Calcula la indemnización del contrato extinguido basándose en las últimas 12 nóminas
+	 */
+	private void calcularIndemnizacion(ContractRecord oldContract, ContractTypeRecord type, LocalDate endDate) {
+		LocalDate startDate = endDate.minusMonths(12).withDayOfMonth(1);
+		double totalGrossSalaryLastYear = payrollGateway.grossSalaryOfTheLastYear(oldContract.id, startDate, endDate);
+		double dailyMeanGrossSalary = totalGrossSalaryLastYear / 365.0;
+		
+		int yearsWorked = Period.between(oldContract.startDate, endDate).getYears();
+		
+		double settlement = dailyMeanGrossSalary * type.compensationDaysPerYear * yearsWorked;
+		
+		oldContract.settlement = Rounds.toCents(settlement);
+		contractGateway.update(oldContract);
+	}
 
-        if (contract_dto.endDate != null
-                && contract_dto.endDate.isBefore(contract_record.startDate)) {
-            throw new BusinessException(
-                    "End date can´t be earlier than star date");
-        }
-
-        if (yaHayUnContratoEnVigorParaElMecanico()) {
-            finalizarContrato();
-            if (llevaMasDeUnAnoTrabajando())
-                calcularIndemnizacion();
-        }
-
-        persistence_contract.add(contract_record);
-        Console.println("Contract created");
-        ContractDto mr;
-        mr = contract_dto;
-        mr = ContractAssembler
-            .toDto(persistence_contract.findById(contract_record.id).get());
-        mr.contractType = ContractAssembler
-            .toContractTypeOfContractDto(persistence_contractType
-                .findById(contract_record.contractTypeId)
-                .get());
-        mr.mechanic = ContractAssembler.toMechanicOfContractDto(
-                persistence_mechanic.findById(contract_record.mechanicId)
-                    .get());
-
-        mr.professionalGroup = ContractAssembler
-            .toProfessionalGroupOfContractDto(persistence_professional
-                .findById(contract_record.professionalGroupId)
-                .get());
-        return mr;
-    }
-
-    private boolean llevaMasDeUnAnoTrabajando() {
-        Optional<ContractRecord> contract_record;
-
-        if (contract_dto.mechanic.id != null) {
-            contract_record = persistence_contract
-                .findByMechanicId(contract_dto.mechanic.id);
-        } else {
-            // No se puede identificar al mecanico por id y ha que hacerlo por
-            // el nif.
-            Optional<MechanicRecord> mechanic_record = persistence_mechanic
-                .findByNif(contract_dto.mechanic.nif);
-            contract_record = persistence_contract
-                .findByMechanicId(mechanic_record.get().id);
-        }
-        return Period
-            .between(contract_record.get().startDate,
-                    LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()))
-            .getYears() > 1;
-    }
-
-    private void finalizarContrato() {
-        Optional<ContractRecord> contract_record;
-        String oldContractId;
-        if (contract_dto.mechanic.id != null) {
-            contract_record = persistence_contract
-                .findByMechanicId(contract_dto.mechanic.id);
-            oldContractId = contract_record.get().id;
-        } else {
-            // No se puede identificar al mecanico por id y ha que hacerlo por
-            // el nif.
-            Optional<MechanicRecord> mechanic_record = persistence_mechanic
-                .findByNif(contract_dto.mechanic.nif);
-            contract_record = persistence_contract
-                .findByMechanicId(mechanic_record.get().id);
-            oldContractId = contract_record.get().id;
-        }
-
-        persistence_contract.finishContract(oldContractId,
-                LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()));
-    }
-
-    private boolean yaHayUnContratoEnVigorParaElMecanico() {
-
-        Optional<ContractRecord> contract_record;
-
-        if (contract_dto.mechanic.id != null) {
-            contract_record = persistence_contract
-                .findByMechanicId(contract_dto.mechanic.id);
-        } else {
-            // No se puede identificar al mecanico por id y ha que hacerlo por
-            // el nif.
-            Optional<MechanicRecord> mechanic_record = persistence_mechanic
-                .findByNif(contract_dto.mechanic.nif);
-            contract_record = persistence_contract
-                .findByMechanicId(mechanic_record.get().id);
-        }
-
-        return contract_record.isPresent();
-
-    }
-
-    private void calcularIndemnizacion() {
-        Optional<ContractRecord> contract_record;
-
-        if (contract_dto.mechanic.id != null) {
-            contract_record = persistence_contract
-                .findByMechanicId(contract_dto.mechanic.id);
-        } else {
-            // No se puede identificar al mecanico por id y ha que hacerlo por
-            // el nif.
-            Optional<MechanicRecord> mechanic_record = persistence_mechanic
-                .findByNif(contract_dto.mechanic.nif);
-            contract_record = persistence_contract
-                .findByMechanicId(mechanic_record.get().id);
-        }
-
-        String oldContractId = contract_record.get().id;
-        double total_gross_salary = persistence_payroll
-            .grossSalaryOfTheLastYear(oldContractId);
-        String contractTypeId = contract_record.get().contractTypeId;
-        Optional<ContractTypeRecord> contractTypeOfOldContract = persistence_contractType
-            .findById(contractTypeId);
-        int years_worked = Period
-            .between(contract_record.get().startDate,
-                    LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()))
-            .getYears();
-        double settlement = total_gross_salary / 365
-                * contractTypeOfOldContract.get().compensationDaysPerYear
-                * years_worked;
-
-        persistence_contract.insertSettlement(settlement, oldContractId);
-    }
-
-    private double forSalary(double annualSalary) {
-        for (int i = 0; i < segments.length; i++) {
-            if (annualSalary < segments[i]) {
-                return rates[i];
-            }
-        }
-        return rates[rates.length - 1];
-    }
-
+	/**
+	 * Algoritmo por tramos para calcular la tasa de IRPF en base al salario bruto anual
+	 */
+	private double forSalary(double annualSalary) {
+		for (int i = 0; i < SEGMENTS.length; i++) {
+			if (annualSalary < SEGMENTS[i]) {
+				return RATES[i];
+			}
+		}
+		return RATES[RATES.length - 1];
+	}
 }

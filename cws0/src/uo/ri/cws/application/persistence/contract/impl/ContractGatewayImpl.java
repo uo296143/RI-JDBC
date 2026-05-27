@@ -67,7 +67,9 @@ public class ContractGatewayImpl implements ContractGateway {
             pst.setDate(1, Date.valueOf(t.endDate));
             pst.setDouble(2, t.annualBaseSalary);
             pst.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            pst.setString(4, t.id);
+            pst.setString(4, t.state);
+            pst.setDouble(5, t.settlement);
+            pst.setString(6, t.id);
             pst.executeUpdate();
 
         } catch (SQLException e) {
@@ -132,14 +134,14 @@ public class ContractGatewayImpl implements ContractGateway {
     }
 
     @Override
-    public List<ContractRecord> findContractsByMechanicId(String mechanic_id)
+    public List<ContractRecord> findContractsByMechanicId(String mechanicId)
             throws PersistenceException {
 
         List<ContractRecord> list = new ArrayList<ContractRecord>();
         Connection c = Jdbc.getCurrentConnection();
         try (PreparedStatement pst = c.prepareStatement(
                 Queries.getSQLSentence("TCONTRACTS_FIND_BY_MECHANIC_ID"))) {
-            pst.setString(1, mechanic_id);
+            pst.setString(1, mechanicId);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     ContractRecord m = new ContractRecord();
@@ -172,71 +174,15 @@ public class ContractGatewayImpl implements ContractGateway {
     }
 
     @Override
-    public Optional<ContractRecord> findByMechanicId(String mechanic_id)
+    public Optional<ContractRecord> findInForceContractByMechanicId(String mechanicId)
             throws PersistenceException {
 
         Connection c = Jdbc.getCurrentConnection();
         try (PreparedStatement pst = c.prepareStatement(
-                Queries.getSQLSentence("TCONTRACTS_FIND_BY_MECHANIC_ID"))) {
-            pst.setString(1, mechanic_id);
+                Queries.getSQLSentence("TCONTRACTS_FIND_IN_FORCE_CONTRACT_BY_MECHANIC_ID"))) {
+            pst.setString(1, mechanicId);
             try (ResultSet rs = pst.executeQuery()) {
                 return ContractAssembler.toRecord(rs);
-            }
-
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public void finishContract(String id, LocalDate endDate)
-            throws PersistenceException {
-
-        Connection c = Jdbc.getCurrentConnection();
-        try (PreparedStatement pst = c.prepareStatement(
-                Queries.getSQLSentence("TCONTRACTS_FINISH_CONTRACT"))) {
-            pst.setDate(1, Date.valueOf(endDate));
-            pst.setString(2, id);
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-
-    }
-
-    @Override
-    public void insertSettlement(double settlement, String id)
-            throws PersistenceException {
-
-        Connection c = Jdbc.getCurrentConnection();
-        try (PreparedStatement pst = c.prepareStatement(
-                Queries.getSQLSentence("TCONTRACTS_INSERT_SETTLEMENT"))) {
-            pst.setDouble(1, settlement);
-            pst.setString(2, id);
-            pst.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-
-    }
-
-    @Override
-    public Optional<String> findMechanicIdByContractId(String contract_id)
-            throws PersistenceException {
-
-        Connection c = Jdbc.getCurrentConnection();
-        try (PreparedStatement pst = c.prepareStatement(Queries
-            .getSQLSentence("TCONTRACTS_FIND_MECHANIC_ID_BY_CONTRACT_ID"))) {
-            pst.setString(1, contract_id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    String mechanic_id = rs.getString(1);
-                    return Optional.of(mechanic_id);
-                } else {
-                    return Optional.empty();
-                }
-
             }
 
         } catch (SQLException e) {

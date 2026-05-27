@@ -17,12 +17,11 @@ public class WorkOrderAssembler {
 	         m.updateAt = rs.getTimestamp("updatedAt").toLocalDateTime();
 	         m.entityState = rs.getString("entityState");
 	         m.date = rs.getDate("date").toLocalDate();
-	         m.number = rs.getLong("number");
 	         m.amount = rs.getDouble("amount");
 	         m.version = rs.getLong("version");
-	         m.invoice_id = rs.getString("invoice_id");
-	         m.mechanic_id = rs.getString("mechanic_id");
-	         m.vehicle_id = rs.getString("vehicle_id");
+	         m.invoiceId = rs.getString("invoice_id");
+	         m.mechanicId = rs.getString("mechanic_id");
+	         m.vehicleId = rs.getString("vehicle_id");
 	         m.description = rs.getString("description");
 	         m.state = rs.getString("state");
 	         result = Optional.of(m);

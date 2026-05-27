@@ -19,10 +19,10 @@ public class ListMechanicById implements Command<Optional<MechanicDto>> {
     }
 
     public Optional<MechanicDto> execute() {
-        Optional<MechanicRecord> optional_record = Factories.persistence
+        Optional<MechanicRecord> optionalRecord = Factories.persistence
             .forMechanic()
             .findById(id);
 
-        return optional_record.map(MechanicAssembler::toDto);
+        return optionalRecord.map(MechanicAssembler::toDto);
     }
 }

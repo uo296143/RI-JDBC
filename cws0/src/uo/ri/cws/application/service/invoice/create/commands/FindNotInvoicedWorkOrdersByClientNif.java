@@ -14,7 +14,7 @@ import uo.ri.util.exception.BusinessException;
 public class FindNotInvoicedWorkOrdersByClientNif
         implements Command<List<InvoicingWorkOrderDto>> {
 
-    private final WorkOrderGateway workOrder_gateway = Factories.persistence
+    private final WorkOrderGateway workOrderGateway = Factories.persistence
         .forWorkOrder();
 
     private String nif;
@@ -24,18 +24,11 @@ public class FindNotInvoicedWorkOrdersByClientNif
         this.nif = nif;
     }
 
-    /**
-     * Process: - Ask customer nif - Display all uncharged workorder (status <>
-     * 'INVOICED'). For each workorder, display id, vehicle id, date, status,
-     * amount and description
-     * 
-     * @return
-     */
     @Override
     public List<InvoicingWorkOrderDto> execute() throws BusinessException {
 
         List<InvoicingWorkOrderDto> invoicingWOs = new ArrayList<InvoicingWorkOrderDto>();
-        List<WorkOrderRecord> workOrders = workOrder_gateway
+        List<WorkOrderRecord> workOrders = workOrderGateway
             .findNotInvoicedWorkOrdersByClientNif(nif);
         for (WorkOrderRecord w : workOrders) {
             InvoicingWorkOrderDto i = new InvoicingWorkOrderDto();

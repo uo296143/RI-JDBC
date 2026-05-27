@@ -115,7 +115,7 @@ public class GeneratePayrolls implements Command<List<PayrollDto>> {
 			LocalDate end, ProfessionalGroupRecord pg) {
 
 		double totalInterventionsValue = workOrderGateway
-				.findWorkOrdersByMechanicIdInDate(mechanicId,
+				.findWorkOrdersTotalAmountByMechanicIdInDate(mechanicId,
 						start, end);
 		return Rounds.toCents(totalInterventionsValue * pg.productivityRate);
 	}

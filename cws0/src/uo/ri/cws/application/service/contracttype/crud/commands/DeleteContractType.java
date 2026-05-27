@@ -16,9 +16,9 @@ import uo.ri.util.exception.BusinessException;
 public class DeleteContractType implements Command<Void> {
 
     private String name;
-    private ContractTypeGateway contractType_gateway = Factories.persistence
+    private ContractTypeGateway contractTypeGateway = Factories.persistence
         .forContractType();
-    private ContractGateway contract_gateway = Factories.persistence
+    private ContractGateway contractGateway = Factories.persistence
         .forContract();
 
     public DeleteContractType(String name) {
@@ -29,19 +29,19 @@ public class DeleteContractType implements Command<Void> {
 
     @Override
     public Void execute() throws BusinessException {
-        BusinessChecks.exists(contractType_gateway.findByName(name));
+        BusinessChecks.exists(contractTypeGateway.findByName(name));
         // Se va a comporbar que no haya contratos del tipo que se quiere borrar
-        List<ContractRecord> list_contracts = contract_gateway.findAll();
+        List<ContractRecord> list_contracts = contractGateway.findAll();
         Optional<ContractTypeRecord> contractType;
         for (ContractRecord c : list_contracts) {
-            contractType = contractType_gateway.findById(c.contractTypeId);
-            if (contractType_gateway.findByName(contractType.get().name)
+            contractType = contractTypeGateway.findById(c.contractTypeId);
+            if (contractTypeGateway.findByName(contractType.get().name).get().name
                 .equals(name)) {
                 throw new BusinessException();
             }
 
         }
-        contractType_gateway.remove(name);
+        contractTypeGateway.remove(name);
         return null;
     }
 

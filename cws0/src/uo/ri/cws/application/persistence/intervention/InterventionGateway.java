@@ -8,7 +8,16 @@ import uo.ri.cws.application.persistence.intervention.InterventionGateway.Interv
 
 public interface InterventionGateway extends Gateway<InterventionRecord> {
 
-    public boolean findByMechanicId(String mechanic_id);
+	/**
+	 * [findByMechanicId]: Busca por el id del mecánico si este tiene intervenciones
+	 *
+	 * @param [mechanicId] String - id del mecánico
+	 * @return boolean - True si tiene intervencinoes false en caso contrario
+	 *
+	 * Ejemplo de uso:
+	 * boolean contractType = interventionGateway.findByMechanicId(1jdjd43222j);
+	 */
+    public boolean findByMechanicId(String mechanicId);
 
     public class InterventionRecord {
 

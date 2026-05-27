@@ -15,7 +15,7 @@ import uo.ri.util.exception.BusinessException;
 public class AddContractType implements Command<ContractTypeDto> {
 
     private ContractTypeRecord record;
-    private ContractTypeGateway ct_gateway = Factories.persistence
+    private ContractTypeGateway ctGateway = Factories.persistence
         .forContractType();
 
     public AddContractType(ContractTypeDto dto) {
@@ -30,10 +30,10 @@ public class AddContractType implements Command<ContractTypeDto> {
 
     @Override
     public ContractTypeDto execute() throws BusinessException {
-        BusinessChecks.doesNotExist(ct_gateway.findByName(record.name));
-        ct_gateway.add(record);
+        BusinessChecks.doesNotExist(ctGateway.findByName(record.name));
+        ctGateway.add(record);
         return ContractTypeAssembler
-            .toDto(ct_gateway.findById(record.id).get());
+            .toDto(ctGateway.findById(record.id).get());
     }
 
 }

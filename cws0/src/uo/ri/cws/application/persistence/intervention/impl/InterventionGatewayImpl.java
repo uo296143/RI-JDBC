@@ -16,43 +16,40 @@ public class InterventionGatewayImpl implements InterventionGateway {
 
     @Override
     public void add(InterventionRecord t) throws PersistenceException {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void remove(String id) throws PersistenceException {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void update(InterventionRecord t) throws PersistenceException {
-        // TODO Auto-generated method stub
+    public void update(InterventionRecord t) throws PersistenceException {      
 
     }
 
     @Override
     public Optional<InterventionRecord> findById(String id)
             throws PersistenceException {
-        // TODO Auto-generated method stub
+        
         return Optional.empty();
     }
 
     @Override
     public List<InterventionRecord> findAll() throws PersistenceException {
-        // TODO Auto-generated method stub
+        
         return null;
     }
 
     @Override
-    public boolean findByMechanicId(String mechanic_id)
+    public boolean findByMechanicId(String mechanicId)
             throws PersistenceException {
 
         Connection c = Jdbc.getCurrentConnection();
         try (PreparedStatement pst = c.prepareStatement(
                 Queries.getSQLSentence("TINTERVENTIONS_FIND_BY_MECHANIC_ID"))) {
-            pst.setString(1, mechanic_id);
+            pst.setString(1, mechanicId);
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next();
             }

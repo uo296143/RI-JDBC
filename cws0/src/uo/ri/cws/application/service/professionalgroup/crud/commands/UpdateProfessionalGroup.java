@@ -19,7 +19,6 @@ public class UpdateProfessionalGroup implements Command<Void> {
 
     public UpdateProfessionalGroup(ProfessionalGroupDto arg) {
         ArgumentChecks.isNotNull(arg);
-        ArgumentChecks.isNotBlank(arg.id);
         ArgumentChecks.isNotBlank(arg.name);
         ArgumentChecks.isNotEmpty(arg.name);
         ArgumentChecks.isFalse(arg.trienniumPayment<0);

@@ -90,13 +90,15 @@ public class PayrollGatewayImpl implements PayrollGateway {
     }
 
     @Override
-    public double grossSalaryOfTheLastYear(String id_contrato)
+    public double grossSalaryOfTheLastYear(String idContrato, LocalDate fechaAlta, LocalDate fechaBaja)
             throws PersistenceException {
 
         Connection c = Jdbc.getCurrentConnection();
         try (PreparedStatement pst = c.prepareStatement(Queries
             .getSQLSentence("TPAYROLLS_GROSS_SALARY_OF_THE_LAST_YEAR"))) {
-            pst.setString(1, id_contrato);
+            pst.setString(1, idContrato);
+            pst.setDate(2, java.sql.Date.valueOf(fechaAlta)); 
+            pst.setDate(3, java.sql.Date.valueOf(fechaBaja));
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next())
                     return rs.getDouble(1);
@@ -109,31 +111,14 @@ public class PayrollGatewayImpl implements PayrollGateway {
     }
 
     @Override
-    public boolean findByContractId(String contract_id)
-            throws PersistenceException {
-
-        Connection c = Jdbc.getCurrentConnection();
-        try (PreparedStatement pst = c.prepareStatement(
-                Queries.getSQLSentence("TPAYROLLS_FIND_BY_CONTRACT_ID"))) {
-            pst.setString(1, contract_id);
-            try (ResultSet rs = pst.executeQuery()) {
-                return rs.next();
-            }
-
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public int findNumberOfPayrollsByContractId(String contract_id)
+    public int findNumberOfPayrollsByContractId(String contractId)
             throws PersistenceException {
 
         int contador = 0;
         Connection c = Jdbc.getCurrentConnection();
         try (PreparedStatement pst = c.prepareStatement(
                 Queries.getSQLSentence("TPAYROLLS_FIND_BY_CONTRACT_ID"))) {
-            pst.setString(1, contract_id);
+            pst.setString(1, contractId);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next())
                     contador += 1;
